@@ -5,8 +5,12 @@
     </li>
   </ul>
   <form v-on:submit.prevent="onSubmit" class="form">
-    <input v-model="message" placeholder="Message"/>
-    <button @click="send">Send</button>
+    <div class="container input-group w-50 mb-3">
+      <input type="text" class="form-control" v-model="message" placeholder="Message">
+      <div class="input-group-append">
+        <button class="btn btn-primary" @click="send">Send</button>
+      </div>
+    </div>
   </form>
 </template>
 
@@ -38,14 +42,14 @@ export default {
 
     check: function() {
       this.user = this.$cookies.get("user");
-      fetch('http://localhost:5000/login/'+this.user)
+      fetch(`http://localhost:5000/login/${this.user}`)
         .then(response => response.json())
         .then(json => {
+          console.log(json.status);
           if (json.status) {
             return
           } else {
             this.login();
-            this.$cookies.set("user", this.user);
           }
         });
     },
@@ -54,10 +58,6 @@ export default {
       socket.send(this.message);
       this.message = "";
     },
-
-    add: function(msg) {
-      this.items.push(msg)
-    }
   },
   mounted() {
     var self=this
@@ -69,12 +69,16 @@ export default {
     }
 
     socket.on("connect", function () {
-      socket.send("User has connected!");
+      socket.send(`${self.user} has connected!`);
     });
 
     socket.on("message", function (msg) {
       self.messages.push(msg);
       console.log("Received message");
+    });
+
+    socket.on("disconnect", function () {
+      socket.send(`${self.user} has disconnected!`);
     });
   },
 };
