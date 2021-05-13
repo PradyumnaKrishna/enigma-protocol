@@ -7,6 +7,7 @@
 <script>
 import io from "socket.io-client";
 import $ from 'jquery';
+var fetch = require('node-fetch');
 var socket = io.connect("http://localhost:5000");
 
 export default {
@@ -14,7 +15,36 @@ export default {
   props: {
     msg: String,
   },
+  methods: {
+    login: function() {
+      fetch('http://localhost:5000/login')
+        .then(response => response.json())
+        .then(json => {
+          this.user = json.user;
+          this.$cookies.set("user", this.user);
+        });
+    },
+
+    check: function() {
+      this.user = this.$cookies.get("user");
+      fetch(`http://localhost:500/login/$(this.user)`)
+        .then(response => response.json())
+        .then(json => {
+          if (json.status) {
+            return
+          } else {
+            this.login();
+            this.$cookies.set("user", this.user);
+          }
+        });
+    }
+  },
   mounted() {
+    if (this.$cookies.isKey("user")) {
+      this.check()
+    } else {
+      this.login()
+    }
 
     socket.on("connect", function () {
       socket.send("User has connected!");

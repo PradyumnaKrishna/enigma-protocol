@@ -5,4 +5,6 @@ import store from './store'
 import "bootstrap"
 import "bootstrap/dist/css/bootstrap.min.css"
 
-createApp(App).use(store).use(router).mount('#app')
+import VueCookies from 'vue3-cookies'
+
+createApp(App).use(VueCookies).use(store).use(router).mount('#app')
