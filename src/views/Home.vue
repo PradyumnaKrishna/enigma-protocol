@@ -1,12 +1,17 @@
 <template>
-  <ul id="messages"></ul>
-  <input type="text" id="myMessage" />
-  <button @click="send">Send</button>
+  <ul id="messages">
+    <li v-for="message in messages" :key="message">
+      {{ message }}
+    </li>
+  </ul>
+  <form v-on:submit.prevent="onSubmit" class="form">
+    <input v-model="message" placeholder="Message"/>
+    <button @click="send">Send</button>
+  </form>
 </template>
 
 <script>
 import io from "socket.io-client";
-import $ from 'jquery';
 var fetch = require('node-fetch');
 var socket = io.connect("http://localhost:5000");
 
@@ -14,6 +19,12 @@ export default {
   name: "Home",
   props: {
     msg: String,
+  },
+  data() {
+    return {
+      messages: [],
+      message: ""
+    };
   },
   methods: {
     login: function() {
@@ -27,7 +38,7 @@ export default {
 
     check: function() {
       this.user = this.$cookies.get("user");
-      fetch(`http://localhost:500/login/$(this.user)`)
+      fetch('http://localhost:5000/login/'+this.user)
         .then(response => response.json())
         .then(json => {
           if (json.status) {
@@ -40,15 +51,21 @@ export default {
     },
 
     send: function() {
-      socket.send($("#myMessage").val());
-      $("#myMessage").val("");
+      socket.send(this.message);
+      this.message = "";
+    },
+
+    add: function(msg) {
+      this.items.push(msg)
     }
   },
   mounted() {
-    if (this.$cookies.isKey("user")) {
-      this.check()
+    var self=this
+
+    if (self.$cookies.isKey("user")) {
+      self.check()
     } else {
-      this.login()
+      self.login()
     }
 
     socket.on("connect", function () {
@@ -56,7 +73,7 @@ export default {
     });
 
     socket.on("message", function (msg) {
-      $("#messages").append("<li>" + msg + "</li>");
+      self.messages.push(msg);
       console.log("Received message");
     });
   },
@@ -73,7 +90,7 @@ ul {
   padding: 0;
 }
 li {
-  display: inline-block;
+  display: list-item;
   margin: 0 10px;
 }
 a {

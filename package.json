@@ -9,7 +9,6 @@
   "dependencies": {
     "bootstrap": "^5.0.0",
     "core-js": "^3.6.5",
-    "jquery": "^3.6.0",
     "node-fetch": "^2.6.1",
     "socket.io-client": "^4.1.1",
     "vue": "^3.0.0",
