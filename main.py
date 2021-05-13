@@ -23,7 +23,7 @@ def new():
 def login(ID):
     if ID in USERS:
         return jsonify({'status': True}), 200
-    return jsonify({'status': False}), 404
+    return jsonify({'status': False}), 200
 
 
 @socketio.on('message')
