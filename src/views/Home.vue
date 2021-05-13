@@ -1,7 +1,7 @@
 <template>
   <ul id="messages"></ul>
   <input type="text" id="myMessage" />
-  <button id="sendbutton">Send</button>
+  <button @click="send">Send</button>
 </template>
 
 <script>
@@ -37,6 +37,11 @@ export default {
             this.$cookies.set("user", this.user);
           }
         });
+    },
+
+    send: function() {
+      socket.send($("#myMessage").val());
+      $("#myMessage").val("");
     }
   },
   mounted() {
@@ -53,11 +58,6 @@ export default {
     socket.on("message", function (msg) {
       $("#messages").append("<li>" + msg + "</li>");
       console.log("Received message");
-    });
-
-    $("#sendbutton").on("click", function () {
-      socket.send($("#myMessage").val());
-      $("#myMessage").val("");
     });
   },
 };
