@@ -1,10 +1,20 @@
 <template>
-  <clip-loader v-if="loading" :loading="loading" :color="color" :size="size"></clip-loader>
+  <clip-loader
+    v-if="loading"
+    :loading="loading"
+    :color="color"
+    :size="size"
+  ></clip-loader>
   <div v-else>
     <div v-if="!to">
       <form v-on:submit.prevent="onSubmit" class="form">
         <div class="container input-group w-50 mb-3">
-          <input type="text" class="form-control" v-model="room" placeholder="Other User ID">
+          <input
+            type="text"
+            class="form-control"
+            v-model="room"
+            placeholder="Other User ID"
+          />
           <div class="input-group-append">
             <button class="btn btn-primary" @click="join_room">Send</button>
           </div>
@@ -15,12 +25,17 @@
     <div v-else>
       <ul id="messages">
         <li v-for="item in messages" :key="item.message">
-          {{item.user}}: {{ item.message }}
+          {{ item.user }}: {{ item.message }}
         </li>
       </ul>
       <form v-on:submit.prevent="onSubmit" class="form">
         <div class="container input-group w-50 mb-3">
-          <input type="text" class="form-control" v-model="message" placeholder="Message">
+          <input
+            type="text"
+            class="form-control"
+            v-model="message"
+            placeholder="Message"
+          />
           <div class="input-group-append">
             <button class="btn btn-primary" @click="send">Send</button>
           </div>
@@ -34,13 +49,13 @@
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
 
-var fetch = require('node-fetch');
+var fetch = require("node-fetch");
 var socket = io.connect("http://localhost:5000");
 
 export default {
   name: "Home",
   components: {
-    ClipLoader
+    ClipLoader,
   },
   props: {
     room: String,
@@ -54,17 +69,17 @@ export default {
     };
   },
   methods: {
-    login: async function() {
-      const response = await fetch('http://localhost:5000/login');
+    login: async function () {
+      const response = await fetch("http://localhost:5000/login");
       const json = await response.json();
       this.user = json.user;
       this.$cookies.set("user", this.user);
     },
 
-    connect: async function(user) {
+    connect: async function (user) {
       const response = await fetch(`http://localhost:5000/connect/${user}`);
       const json = await response.json();
-      return json.status
+      return json.status;
     },
 
     load: async function () {
@@ -77,7 +92,7 @@ export default {
           await this.login();
         }
       } else {
-        await this.login()
+        await this.login();
       }
 
       if (this.$cookies.isKey("to")) {
@@ -91,25 +106,28 @@ export default {
       this.loading = false;
     },
 
-    send: function() {
-      socket.emit('send_message', {
+    send: function () {
+      socket.emit("send_message", {
         user: this.$cookies.get("user"),
         message: this.message,
-        to: this.to
+        to: this.to,
       });
       this.messages.push({ user: "self", message: this.message });
       this.message = "";
     },
 
-    join_room: async function() {
-        if ((this.room != this.$cookies.get("user")) && (await this.connect(this.room))) { 
-          this.to = this.room;
-          this.$cookies.set("to", this.to);
-          console.log("user is connected");
-        } else {
-            alert("Wrong user")
-        }
-    }
+    join_room: async function () {
+      if (
+        this.room != this.$cookies.get("user") &&
+        (await this.connect(this.room))
+      ) {
+        this.to = this.room;
+        this.$cookies.set("to", this.to);
+        console.log("user is connected");
+      } else {
+        alert("Wrong user");
+      }
+    },
   },
   mounted() {
     var self = this;
@@ -119,14 +137,14 @@ export default {
       socket.emit("join_room", {
         user: self.$cookies.get("user"),
       });
-      console.log("socket connect")
-    })
+      console.log("socket connect");
+    });
 
-    socket.on('receive_message', function(data) {
+    socket.on("receive_message", function (data) {
       self.messages.push({ user: data.user, message: data.message });
     });
 
-    socket.on('room_announcements', function(data) {
+    socket.on("room_announcements", function (data) {
       console.log(data);
     });
   },

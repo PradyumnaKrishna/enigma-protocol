@@ -1,13 +1,14 @@
+import os
+import secrets
+
 from flask import Flask, jsonify
 from flask_socketio import SocketIO, send, join_room
 from flask_cors import CORS
-import secrets
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_urlsafe(32)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
-
 
 USERS = []
 
@@ -47,4 +48,5 @@ def handle_join_room_event(data):
 
 
 if __name__ == '__main__':
-    socketio.run(app)
+    port = os.getenv('PORT', 5000)
+    socketio.run(app, host='0.0.0.0', port=port)
