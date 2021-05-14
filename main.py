@@ -28,7 +28,7 @@ def connect(ID):
 
 @socketio.on('message')
 def handleMessage(msg):
-    send(msg)
+    send(msg, broadcast=True)
 
 
 @socketio.on('send_message')
@@ -41,8 +41,7 @@ def handle_messages(json):
 
 @socketio.on('join_room')
 def handle_join_room_event(data):
-    room = data.pop('room')
-    join_room(data['user'])
+    room = data.pop('user')
     join_room(room)
     socketio.emit("room_announcements", "Join Room Callback", to=room)
 

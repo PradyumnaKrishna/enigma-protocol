@@ -64,16 +64,14 @@ export default {
         message: this.message,
         to: this.to
       });
+      this.messages.push({ user: "self", message: this.message });
       this.message = "";
     },
 
     join_room: async function() {
         if ((this.room != this.$cookies.get("user")) && (await this.connect(this.room))) { 
           this.to = this.room;
-          socket.emit("join_room", {
-            user: this.$cookies.get("user"),
-            room: this.to
-          });
+          this.$cookies.set("to", this.to);
           console.log("user is connected");
         } else {
             alert("Wrong user")
@@ -82,21 +80,34 @@ export default {
   },
   async mounted() {
     if (this.$cookies.isKey("user")) {
-      if (!this.connect(this.$cookies.get("user"))) {
-          await this.login();
+      if (await this.connect(this.$cookies.get("user"))) {
+        this.user = this.$cookies.get("user");
+      } else {
+        await this.login();
       }
     } else {
       await this.login()
     }
 
+    if (this.$cookies.isKey("to")) {
+      if (await this.connect(this.$cookies.get("to"))) {
+        this.to = this.$cookies.get("to");
+      } else {
+        this.$cookies.remove("to");
+      }
+    }
+
     var self = this;
 
     socket.on("connect", function () {
+      socket.emit("join_room", {
+        user: self.$cookies.get("user"),
+      });
       console.log("socket connect")
     })
 
     socket.on('receive_message', function(data) {
-      self.messages.push({ user: data.user, message: data.message })
+      self.messages.push({ user: data.user, message: data.message });
     });
 
     socket.on('room_announcements', function(data) {

@@ -42,7 +42,7 @@ export default {
       const response = await fetch(`http://localhost:5000/connect/${user}`);
       const json = await response.json();
       if (json.status) {
-        return
+        this.user = this.$cookies.get("user");
       } else {
         await this.login();
       }
