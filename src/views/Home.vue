@@ -31,27 +31,21 @@ export default {
     };
   },
   methods: {
-    login: function() {
-      fetch('http://localhost:5000/login')
-        .then(response => response.json())
-        .then(json => {
-          this.user = json.user;
-          this.$cookies.set("user", this.user);
-        });
+    login: async function() {
+      const response = await fetch('http://localhost:5000/login');
+      const json = await response.json();
+      this.user = json.user;
+      this.$cookies.set("user", this.user);
     },
 
-    check: function() {
-      this.user = this.$cookies.get("user");
-      fetch(`http://localhost:5000/login/${this.user}`)
-        .then(response => response.json())
-        .then(json => {
-          console.log(json.status);
-          if (json.status) {
-            return
-          } else {
-            this.login();
-          }
-        });
+    connect: async function(user) {
+      const response = await fetch(`http://localhost:5000/connect/${user}`);
+      const json = await response.json();
+      if (json.status) {
+        return
+      } else {
+        await this.login();
+      }
     },
 
     send: function() {
@@ -59,14 +53,14 @@ export default {
       this.message = "";
     },
   },
-  mounted() {
-    var self=this
-
-    if (self.$cookies.isKey("user")) {
-      self.check()
+  async mounted() {
+    if (this.$cookies.isKey("user")) {
+      await this.connect(this.$cookies.get("user"))
     } else {
-      self.login()
+      await this.login()
     }
+
+    var self = this;
 
     socket.on("connect", function () {
       socket.send(`${self.user} has connected!`);
