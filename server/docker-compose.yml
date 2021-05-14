@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  server:
+    hostname: server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app

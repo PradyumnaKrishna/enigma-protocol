@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  client:
+    hostname: client
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development-stage
+    environment:
+      - npm_config_unsafe_perm=true
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app
+      - /app/node_modules
