@@ -1,44 +1,53 @@
 <template>
-  <div v-if="!to">
-    <form v-on:submit.prevent="onSubmit" class="form">
-      <div class="container input-group w-50 mb-3">
-        <input type="text" class="form-control" v-model="room" placeholder="Other User ID">
-        <div class="input-group-append">
-          <button class="btn btn-primary" @click="join_room">Send</button>
+  <clip-loader v-if="loading" :loading="loading" :color="color" :size="size"></clip-loader>
+  <div v-else>
+    <div v-if="!to">
+      <form v-on:submit.prevent="onSubmit" class="form">
+        <div class="container input-group w-50 mb-3">
+          <input type="text" class="form-control" v-model="room" placeholder="Other User ID">
+          <div class="input-group-append">
+            <button class="btn btn-primary" @click="join_room">Send</button>
+          </div>
         </div>
-      </div>
-    </form>
-  </div>
+      </form>
+    </div>
 
-  <div v-if="to">
-    <ul id="messages">
-      <li v-for="item in messages" :key="item.message">
-        {{item.user}}: {{ item.message }}
-      </li>
-    </ul>
-    <form v-on:submit.prevent="onSubmit" class="form">
-      <div class="container input-group w-50 mb-3">
-        <input type="text" class="form-control" v-model="message" placeholder="Message">
-        <div class="input-group-append">
-          <button class="btn btn-primary" @click="send">Send</button>
+    <div v-else>
+      <ul id="messages">
+        <li v-for="item in messages" :key="item.message">
+          {{item.user}}: {{ item.message }}
+        </li>
+      </ul>
+      <form v-on:submit.prevent="onSubmit" class="form">
+        <div class="container input-group w-50 mb-3">
+          <input type="text" class="form-control" v-model="message" placeholder="Message">
+          <div class="input-group-append">
+            <button class="btn btn-primary" @click="send">Send</button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </template>
 
 <script>
 import io from "socket.io-client";
+import ClipLoader from "../assets/ClipLoader";
+
 var fetch = require('node-fetch');
 var socket = io.connect("http://localhost:5000");
 
 export default {
   name: "Home",
+  components: {
+    ClipLoader
+  },
   props: {
     room: String,
   },
   data() {
     return {
+      loading: true,
       messages: [],
       message: "",
       to: null,
@@ -56,6 +65,30 @@ export default {
       const response = await fetch(`http://localhost:5000/connect/${user}`);
       const json = await response.json();
       return json.status
+    },
+
+    load: async function () {
+      this.loading = true;
+
+      if (this.$cookies.isKey("user")) {
+        if (await this.connect(this.$cookies.get("user"))) {
+          this.user = this.$cookies.get("user");
+        } else {
+          await this.login();
+        }
+      } else {
+        await this.login()
+      }
+
+      if (this.$cookies.isKey("to")) {
+        if (await this.connect(this.$cookies.get("to"))) {
+          this.to = this.$cookies.get("to");
+        } else {
+          this.$cookies.remove("to");
+        }
+      }
+
+      this.loading = false;
     },
 
     send: function() {
@@ -78,26 +111,9 @@ export default {
         }
     }
   },
-  async mounted() {
-    if (this.$cookies.isKey("user")) {
-      if (await this.connect(this.$cookies.get("user"))) {
-        this.user = this.$cookies.get("user");
-      } else {
-        await this.login();
-      }
-    } else {
-      await this.login()
-    }
-
-    if (this.$cookies.isKey("to")) {
-      if (await this.connect(this.$cookies.get("to"))) {
-        this.to = this.$cookies.get("to");
-      } else {
-        this.$cookies.remove("to");
-      }
-    }
-
+  mounted() {
     var self = this;
+    self.load();
 
     socket.on("connect", function () {
       socket.emit("join_room", {
