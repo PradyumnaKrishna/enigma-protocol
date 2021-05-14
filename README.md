@@ -6,39 +6,7 @@ Hello Friends, I am trying to build an end to end encrypted messenger using Flas
 
 ## Initial Roadmap 
 
-### Build a Person to Person Chat messenger
-
-- [ ] Generate Hash for each user, whoever opened the client using flask.
-
-- [ ] Store that Hash into database and on client session.
-
-- [ ] Connect other user using Hash.
-
-- [ ] Create a 2 person session on frontend.
-
-### Add encryption to those messages
-
-- [ ] Create 2 SocketIO, one for send and another for receive.
-
-- [ ] Encrypt those messages using node-forge (node.js's api crypto not working with vue.js currently).
-
-- [ ] While Creating session exchange the public keys of the users.
-
-- [ ] Encrypt using publicKey, decrypt using privateKey and these keys are going to store in frontend session.
-
--  **NOTE: If privateKey or user hash removed from the session then no one can restore those messages.**
-
-### DataBase Storing Facility
-
-- [ ] Store every message to the database (with session id that is going to be another Hash) while send and receive messages.
-
-- [ ] Session is removed after 15 min of last activity (initially).
-
-- [ ] One button deletion of encrypted messages and user from database.
-
--  **NOTE: Only Received Messages can be decrypted, You can't decrypt sent messages because you have don't have privateKey for sent one.**
-
-### **`...`**
+**Moved to [Projects](https://github.com/PradyumnaKrishna/enigma-protocol/projects/2).**
 
 
 ## Logic
