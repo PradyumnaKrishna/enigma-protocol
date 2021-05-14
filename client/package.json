@@ -7,6 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@popperjs/core": "^2.9.2",
     "bootstrap": "^5.0.0",
     "core-js": "^3.6.5",
     "node-fetch": "^2.6.1",
