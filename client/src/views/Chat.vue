@@ -84,12 +84,14 @@ export default {
       if (this.$cookies.isKey("privateKey")) {
         this.privateKey = Buffer.from(this.$cookies.get("privateKey"), 'base64').toString();
       } else {
-        var keypair = forge.pki.rsa.generateKeyPair({bits: 2048, e: 0x10001});
-        this.publicKey = forge.pki.publicKeyToPem(keypair.publicKey); 
-        this.$cookies.set("publicKey", Buffer.from(this.publicKey).toString("base64"));
+        var self = this;
+        await forge.pki.rsa.generateKeyPair({bits: 2048, workers: 2}, function(err, keypair) {
+          self.publicKey = forge.pki.publicKeyToPem(keypair.publicKey); 
+          self.$cookies.set("publicKey", Buffer.from(self.publicKey).toString("base64"));
 
-        this.privateKey = forge.pki.privateKeyToPem(keypair.privateKey); 
-        this.$cookies.set("privateKey", Buffer.from(this.privateKey).toString("base64"));
+          self.privateKey = forge.pki.privateKeyToPem(keypair.privateKey); 
+          self.$cookies.set("privateKey", Buffer.from(self.privateKey).toString("base64"));
+        });        
       }
 
       if (this.$cookies.isKey("user")) {
@@ -106,8 +108,8 @@ export default {
       if (this.$cookies.isKey("to")) {
         var json = await this.connect(this.$cookies.get("to"));
         if (json.status) {
-          this.$cookies.set(json.to, json.publicKey);
           this.to = this.$cookies.get("to");
+          this[this.to] = Buffer.from(json.publicKey, 'base64').toString();
         } else {
           this.$cookies.remove("to");
         }
@@ -117,8 +119,7 @@ export default {
     },
 
     send: function () {
-      var pem = Buffer.from(this.$cookies.get(`${this.to}`), 'base64').toString();
-      var key = forge.pki.publicKeyFromPem(pem);
+      var key = forge.pki.publicKeyFromPem(this[this.to]);
       var message = key.encrypt(this.message);
       socket.emit("send_message", {
         user: this.$cookies.get("user"),
@@ -138,6 +139,7 @@ export default {
         this.to = this.room;
         this.$cookies.set("to", this.to);
         this.$cookies.set(json.to, json.publicKey);
+        this[this.to] = Buffer.from(json.publicKey, 'base64').toString();
         console.log("user is connected");
       } else {
         alert("Wrong user");
