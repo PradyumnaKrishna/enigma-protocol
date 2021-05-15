@@ -10,20 +10,23 @@ app.config['SECRET_KEY'] = secrets.token_urlsafe(32)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-USERS = []
+USERS = {
+
+}
 
 
-@app.route('/login')
-def new():
+@app.route('/login/<publicKey>')
+def new(publicKey):
     ID = secrets.token_hex(4)
-    USERS.append(ID)
+    USERS[ID] = publicKey
+    print(USERS)
     return jsonify({'user': ID}), 200
 
 
 @app.route('/connect/<ID>')
 def connect(ID):
     if ID in USERS:
-        return jsonify({'status': True}), 200
+        return jsonify({'status': True, 'to': ID, 'publicKey': USERS[ID]}), 200
     return jsonify({'status': False}), 200
 
 

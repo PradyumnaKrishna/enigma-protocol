@@ -1,10 +1,5 @@
 <template>
-  <clip-loader
-    v-if="loading"
-    :loading="loading"
-    :color="color"
-    :size="size"
-  ></clip-loader>
+  <clip-loader v-if="loading"></clip-loader>
   <div v-else>
     <div v-if="!to">
       <form v-on:submit.prevent="onSubmit" class="form">
@@ -49,6 +44,7 @@
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
 
+var forge = require("node-forge")
 var fetch = require("node-fetch");
 var socket = io.connect("http://localhost:5000");
 
@@ -70,7 +66,7 @@ export default {
   },
   methods: {
     login: async function () {
-      const response = await fetch("http://localhost:5000/login");
+      const response = await fetch(`http://localhost:5000/login/${this.$cookies.get("publicKey")}`);
       const json = await response.json();
       this.user = json.user;
       this.$cookies.set("user", this.user);
@@ -79,14 +75,26 @@ export default {
     connect: async function (user) {
       const response = await fetch(`http://localhost:5000/connect/${user}`);
       const json = await response.json();
-      return json.status;
+      return json;
     },
 
     load: async function () {
       this.loading = true;
 
+      if (this.$cookies.isKey("privateKey")) {
+        this.privateKey = Buffer.from(this.$cookies.get("privateKey"), 'base64').toString();
+      } else {
+        var keypair = forge.pki.rsa.generateKeyPair({bits: 2048, e: 0x10001});
+        this.publicKey = forge.pki.publicKeyToPem(keypair.publicKey); 
+        this.$cookies.set("publicKey", Buffer.from(this.publicKey).toString("base64"));
+
+        this.privateKey = forge.pki.privateKeyToPem(keypair.privateKey); 
+        this.$cookies.set("privateKey", Buffer.from(this.privateKey).toString("base64"));
+      }
+
       if (this.$cookies.isKey("user")) {
-        if (await this.connect(this.$cookies.get("user"))) {
+        var json = await this.connect(this.$cookies.get("user"));
+        if (json.status) {
           this.user = this.$cookies.get("user");
         } else {
           await this.login();
@@ -96,7 +104,9 @@ export default {
       }
 
       if (this.$cookies.isKey("to")) {
-        if (await this.connect(this.$cookies.get("to"))) {
+        var json = await this.connect(this.$cookies.get("to"));
+        if (json.status) {
+          this.$cookies.set(json.to, json.publicKey);
           this.to = this.$cookies.get("to");
         } else {
           this.$cookies.remove("to");
@@ -107,9 +117,12 @@ export default {
     },
 
     send: function () {
+      var pem = Buffer.from(this.$cookies.get(`${this.to}`), 'base64').toString();
+      var key = forge.pki.publicKeyFromPem(pem);
+      var message = key.encrypt(this.message);
       socket.emit("send_message", {
         user: this.$cookies.get("user"),
-        message: this.message,
+        message: message,
         to: this.to,
       });
       this.messages.push({ user: "self", message: this.message });
@@ -117,12 +130,14 @@ export default {
     },
 
     join_room: async function () {
+      var json = await this.connect(this.room);
       if (
         this.room != this.$cookies.get("user") &&
-        (await this.connect(this.room))
+        json.status
       ) {
         this.to = this.room;
         this.$cookies.set("to", this.to);
+        this.$cookies.set(json.to, json.publicKey);
         console.log("user is connected");
       } else {
         alert("Wrong user");
@@ -141,7 +156,9 @@ export default {
     });
 
     socket.on("receive_message", function (data) {
-      self.messages.push({ user: data.user, message: data.message });
+      var key = forge.pki.privateKeyFromPem(self.privateKey);
+      var message = key.decrypt(data.message);
+      self.messages.push({ user: data.user, message: message });
     });
 
     socket.on("room_announcements", function (data) {
