@@ -1,5 +1,5 @@
 
-# Title
+# Enigma Protocol
 
 Hello Friends, I am trying to build an end to end encrypted messenger using Flask, SocketIO, and Vue.js. So, Here is my roadmap to achieve it.
 
@@ -31,7 +31,7 @@ But here is a small drawback of end-to-end encryption. The user can't decrypt th
 The Development is in progress, so those who wants to develop with me just clone this repository using:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/PradyumnaKrishna/enigma-protocol.git
 ```
 
 install the requirements
