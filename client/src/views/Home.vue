@@ -8,7 +8,7 @@
       the web application.
     </p>
     <br />
-    <button class="btn btn-primary"><a href="chat">Start Chatting</a></button>
+    <a href="chat" class="btn btn-dark">Start Chatting</a>
   </div>
 </template>
 

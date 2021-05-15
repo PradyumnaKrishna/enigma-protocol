@@ -1,6 +1,16 @@
 <template>
   <clip-loader v-if="loading"></clip-loader>
   <div v-else>
+    <div class="container w-75 d-flex px-5">
+      <div class="row justify-content-between w-100">
+        <div class="col text-start">
+          <button class="shadow btn btn-primary" @click="copy(user)"><p class="my-0"><strong>User: {{ user }}</strong></p></button>
+        </div>
+        <div class="col text-end">
+          <button class="shadow btn btn-primary" @click="copy(to)"><p class="my-0"><strong>Connected To: {{ to }}</strong></p></button>
+        </div>
+      </div>
+    </div>
     <div v-if="!to">
       <form v-on:submit.prevent="onSubmit" class="form">
         <div class="container input-group w-50 mb-3">
@@ -17,25 +27,38 @@
       </form>
     </div>
 
-    <div v-else>
-      <ul id="messages">
-        <li v-for="item in messages" :key="item.message">
-          {{ item.user }}: {{ item.message }}
-        </li>
-      </ul>
-      <form v-on:submit.prevent="onSubmit" class="form">
-        <div class="container input-group w-50 mb-3">
-          <input
-            type="text"
-            class="form-control"
-            v-model="message"
-            placeholder="Message"
-          />
-          <div class="input-group-append">
-            <button class="btn btn-primary" @click="send">Send</button>
+    <div v-else class="d-flex justify-content-center">
+      <div class="card w-50">
+        <div class="card-body msg_card_body">
+          <div v-for="item in messages" :key="item.message">
+            <div v-if="item.user === 'self'" class="d-flex justify-content-end mb-4">
+              <div class="msg_cotainer_send">
+                {{ item.message }}
+              </div>
+            </div>
+            <div v-else class="d-flex justify-content-start mb-4">
+              <div class="msg_cotainer">
+                {{ item.message }}
+              </div>
+            </div>
           </div>
         </div>
-      </form>
+        <div class="card-footer">
+          <form v-on:submit.prevent="onSubmit" class="form">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                v-model="message"
+                placeholder="Message"
+              />
+              <div class="input-group-append">
+                <button class="btn btn-primary" @click="send">Send</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -61,6 +84,7 @@ export default {
       loading: true,
       messages: [],
       message: "",
+      user: null,
       to: null,
     };
   },
@@ -145,6 +169,11 @@ export default {
         alert("Wrong user");
       }
     },
+
+    copy: async function (user) {
+      await navigator.clipboard.writeText(user);
+      // alert("User Copied");
+    },
   },
   mounted() {
     var self = this;
@@ -185,5 +214,30 @@ li {
 }
 a {
   color: #42b983;
+}
+
+.msg_card_body{
+  overflow-y: auto;
+  position: relative;
+  max-height: 75vh;
+}
+
+.msg_cotainer{
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 10px;
+  border-radius: 25px;
+  background-color: #82ccdd;
+  padding: 10px;
+  position: relative;
+}
+.msg_cotainer_send{
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 10px;
+  border-radius: 25px;
+  background-color: #78e08f;
+  padding: 10px;
+  position: relative;
 }
 </style>

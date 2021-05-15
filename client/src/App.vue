@@ -21,8 +21,8 @@
 
 .container {
   padding: auto;
-  margin-top: 3rem;
-  margin-bottom: 3rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 p {
