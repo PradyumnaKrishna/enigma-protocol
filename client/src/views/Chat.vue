@@ -29,7 +29,7 @@
 
     <div v-else class="d-flex justify-content-center">
       <div class="card w-50">
-        <div class="card-body msg_card_body">
+        <div ref="messages" class="card-body msg_card_body">
           <div v-for="item in messages" :key="item.message">
             <div v-if="item.user === 'self'" class="d-flex justify-content-end mb-4">
               <div class="msg_cotainer_send">
@@ -53,7 +53,7 @@
                 placeholder="Message"
               />
               <div class="input-group-append">
-                <button class="btn btn-primary" @click="send">Send</button>
+                <button v-bind:disabled="!message" class="btn btn-primary" @click="send">Send</button>
               </div>
             </div>
           </form>
@@ -115,7 +115,7 @@ export default {
 
           self.privateKey = forge.pki.privateKeyToPem(keypair.privateKey); 
           self.$cookies.set("privateKey", Buffer.from(self.privateKey).toString("base64"));
-        });        
+        });
       }
 
       if (this.$cookies.isKey("user")) {
@@ -128,6 +128,11 @@ export default {
       } else {
         await this.login();
       }
+
+      var user = this.$cookies.get("user");
+      socket.emit("join_room", {
+        user: user,
+      });
 
       if (this.$cookies.isKey("to")) {
         var json = await this.connect(this.$cookies.get("to"));
@@ -150,14 +155,14 @@ export default {
         message: message,
         to: this.to,
       });
-      this.messages.push({ user: "self", message: this.message });
+      this.addMessage({ user: "self", message: this.message });
       this.message = "";
     },
 
     join_room: async function () {
       var json = await this.connect(this.room);
       if (
-        this.room != this.$cookies.get("user") &&
+        this.room != this.user &&
         json.status
       ) {
         this.to = this.room;
@@ -172,24 +177,27 @@ export default {
 
     copy: async function (user) {
       await navigator.clipboard.writeText(user);
-      // alert("User Copied");
+      alert("Text Copied");
     },
+
+    addMessage: function (json) {
+      this.messages.push(json) //adding new message to the list
+      this.$nextTick(function () {
+          var container = this.$refs.messages;
+          container.scrollTop = container.scrollHeight;
+      })
+    },
+  },
+  beforeMount() {
+    this.load();
   },
   mounted() {
     var self = this;
-    self.load();
-
-    socket.on("connect", function () {
-      socket.emit("join_room", {
-        user: self.$cookies.get("user"),
-      });
-      console.log("socket connect");
-    });
 
     socket.on("receive_message", function (data) {
       var key = forge.pki.privateKeyFromPem(self.privateKey);
       var message = key.decrypt(data.message);
-      self.messages.push({ user: data.user, message: message });
+      self.addMessage({ user: data.user, message: message });
     });
 
     socket.on("room_announcements", function (data) {
@@ -218,8 +226,7 @@ a {
 
 .msg_card_body{
   overflow-y: auto;
-  position: relative;
-  max-height: 75vh;
+  height: 75vh;
 }
 
 .msg_cotainer{
