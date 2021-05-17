@@ -24,3 +24,5 @@ pnpm-debug.log*
 *.sln
 *.sw?
 *env
+
+*.db
