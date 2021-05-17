@@ -66,10 +66,14 @@
 <script>
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
+URL = process.env.URL;
+if (!URL) {
+  URL = "https://enigma-protocol.azurewebsites.net"
+}
 
 var forge = require("node-forge")
 var fetch = require("node-fetch");
-var socket = io.connect("http://localhost:5000");
+var socket = io.connect(URL);
 
 export default {
   name: "Home",
@@ -90,14 +94,14 @@ export default {
   },
   methods: {
     login: async function () {
-      const response = await fetch(`http://localhost:5000/login/${this.$cookies.get("publicKey")}`);
+      const response = await fetch(`${URL}/login/${this.$cookies.get("publicKey")}`);
       const json = await response.json();
       this.user = json.user;
       this.$cookies.set("user", this.user);
     },
 
     connect: async function (user) {
-      const response = await fetch(`http://localhost:5000/connect/${user}`);
+      const response = await fetch(`${URL}/connect/${user}`);
       const json = await response.json();
       return json;
     },
