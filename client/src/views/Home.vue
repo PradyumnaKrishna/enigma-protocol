@@ -8,7 +8,7 @@
       the web application.
     </p>
     <br />
-    <a href="chat" class="btn btn-dark">Start Chatting</a>
+    <router-link to="chat" class="btn btn-dark">Initiate Protocol</router-link>
   </div>
 </template>
 
