@@ -1,10 +1,10 @@
 <template>
   <div class="container about w-50 mx-auto">
     <h1>This is an about page</h1>
-    <br />
+    <br/>
     <p>
       Hello Friends, I am trying to build an end to end encrypted messenger
-      using Flask, SocketIO, and Vue.js. So, Here is my roadmap to achive it.
+      using Flask, SocketIO, and Vue.js. So, Here is my roadmap to achieve it.
     </p>
   </div>
 
@@ -18,7 +18,7 @@
 
   <div class="container mx-auto w-50 text-start">
     <h4>Add encryption to those messages</h4>
-    <li>Create 2 SocketIO, one for send another for recieve.</li>
+    <li>Create 2 SocketIO, one for send another for receive.</li>
     <li>
       Encrypt Those messages using node-forge (nodejs crypto not working
       currently).
@@ -42,13 +42,13 @@
     <h4>DataBase Storing Facility</h4>
     <li>
       Store every message to the database (with session id that is going to be
-      another Hash) while send and recieve messages.
+      another Hash) while send and receive messages.
     </li>
     <li>Session is removed after 15 min of last activity (initially)</li>
     <li>One button deletion of encrypted messages and user from database.</li>
     <li>
       <strong>
-        NOTE: Only Recieved Messages can be decrypted, You can't decrypt sent
+        NOTE: Only Received Messages can be decrypted, You can't decrypt sent
         messages because you have don't have privateKey for sent one.
       </strong>
     </li>
