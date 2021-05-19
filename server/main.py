@@ -22,6 +22,11 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 migrate = Migrate(app, db)
 
 
+@app.route('/')
+def home():
+    return "ok", 200
+
+
 @app.route('/login/<publicKey>')
 def new(publicKey):
     user = User(publicKey=publicKey)
