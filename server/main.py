@@ -1,7 +1,7 @@
 import os
 import secrets
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, join_room
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -38,7 +38,23 @@ def connect(ID):
     return jsonify({'status': False}), 200
 
 
-# TODO: API to retrieve encrypted messages
+@app.route('/retreive', methods=['POST'])
+def retreive():
+    data = request.get_json()
+    sender = User.query.filter_by(id=data['sender']).first()
+    receiver = User.query.filter_by(id=data['receiver']).first()
+
+    if sender and receiver:
+        messages = Message.query.filter_by(sender=sender.id, receiver=receiver.id).order_by(Message.sent_at.desc()).limit(10)
+        return jsonify(messages=[i.serialize for i in messages])
+    elif sender:
+        return jsonify({'receiver': 'not found'}), 404
+    elif receiver:
+        return jsonify({'sender': 'not found'}), 404
+    else:
+        return jsonify({'sender': 'not found', 'receiver': 'not found'}), 404
+
+
 @socketio.on('send_message')
 def handle_messages(data):
     message = Message(message=data['message'], sender=data['user'], receiver=data['to'])

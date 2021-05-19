@@ -106,20 +106,44 @@ export default {
       const response = await fetch(`${URL}/connect/${user}`);
       return await response.json();
     },
+    
+    retreive: function () {
+      const data = {
+        'sender': this.to,
+        'receiver': this.user
+      }
+
+      fetch(`${URL}/retreive`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => response.json())
+      .then(json => {
+          for (let i of json.messages) {
+          const message = this.privateKey.decrypt(i.message);
+          this.addMessage({user: this.to, message: message});
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    },
 
     load: async function () {
       this.loading = true;
 
       if (this.$cookies.isKey("privateKey")) {
         this.privateKey = Buffer.from(this.$cookies.get("privateKey"), 'base64').toString();
+        this.privateKey = forge.pki.privateKeyFromPem(this.privateKey);
       } else {
-        const self = this;
-        await forge.pki.rsa.generateKeyPair({bits: 2048, workers: 2}, function (err, keypair) {
-          self.publicKey = forge.pki.publicKeyToPem(keypair.publicKey);
-          self.$cookies.set("publicKey", Buffer.from(self.publicKey).toString("base64"));
+        await forge.pki.rsa.generateKeyPair({bits: 2048, workers: 2}, (err, keypair) => {
+          this.publicKey = forge.pki.publicKeyToPem(keypair.publicKey);
+          this.$cookies.set("publicKey", Buffer.from(this.publicKey).toString("base64"));
 
-          self.privateKey = forge.pki.privateKeyToPem(keypair.privateKey);
-          self.$cookies.set("privateKey", Buffer.from(self.privateKey).toString("base64"));
+          this.privateKey = keypair.privateKey
+          const key = forge.pki.privateKeyToPem(keypair.privateKey);
+          this.$cookies.set("privateKey", Buffer.from(key).toString("base64"));
         });
       }
 
@@ -144,6 +168,7 @@ export default {
         if (json.status) {
           this.to = this.$cookies.get("to");
           this[this.to] = Buffer.from(json.publicKey, 'base64').toString();
+          this.retreive();
         } else {
           this.$cookies.remove("to");
         }
@@ -197,15 +222,12 @@ export default {
     this.load();
   },
   mounted() {
-    const self = this;
-
-    socket.on("receive_message", function (data) {
-      const key = forge.pki.privateKeyFromPem(self.privateKey);
-      const message = key.decrypt(data.message);
-      self.addMessage({user: data.user, message: message});
+    socket.on("receive_message", (data) => {
+      const message = this.privateKey.decrypt(data.message);
+      this.addMessage({user: data.user, message: message});
     });
 
-    socket.on("room_announcements", function (data) {
+    socket.on("room_announcements", (data) => {
       console.log(data);
     });
   },

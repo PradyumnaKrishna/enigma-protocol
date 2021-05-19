@@ -31,5 +31,13 @@ class Message(db.Model):
         self.sender = sender
         self.receiver = receiver
 
+    @property
+    def serialize(self):
+        """Return object data in easily serializable format"""
+        return {
+            'message': self.message.decode(),
+            'sent_at': self.sent_at
+        }
+
     def __repr__(self):
         return id
