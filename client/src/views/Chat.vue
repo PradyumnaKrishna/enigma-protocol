@@ -108,26 +108,7 @@ export default {
     },
     
     retreive: function () {
-      const data = {
-        'sender': this.to,
-        'receiver': this.user
-      }
-
-      fetch(`${URL}/retreive`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(response => response.json())
-      .then(json => {
-          for (let i of json.messages) {
-          const message = this.privateKey.decrypt(i.message);
-          this.addMessage({user: this.to, message: message});
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      })
+      // TODO: use localStorage to save messages
     },
 
     load: async function () {
