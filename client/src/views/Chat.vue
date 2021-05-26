@@ -108,7 +108,13 @@ export default {
     },
     
     retreive: function () {
-      // TODO: use localStorage to save messages
+      if (localStorage.getItem(this.to)) {
+        try {
+          this.messages = JSON.parse(localStorage.getItem(this.to));
+        } catch(e) {
+          localStorage.removeItem(this.to);
+        }
+      }
     },
 
     load: async function () {
@@ -197,6 +203,9 @@ export default {
         const container = this.$refs.messages;
         container.scrollTop = container.scrollHeight;
       })
+
+      const parsed = JSON.stringify(this.messages);
+      localStorage.setItem(this.to, parsed);
     },
   },
   beforeMount() {
