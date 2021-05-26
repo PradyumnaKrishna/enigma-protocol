@@ -5,4 +5,4 @@ WORKDIR /app
 
 RUN pip install --upgrade -r requirements.txt
 
-CMD /usr/bin/python3 main.py
+CMD python3 main.py
