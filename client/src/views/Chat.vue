@@ -1,63 +1,76 @@
 <template>
   <clip-loader v-if="loading"></clip-loader>
   <div v-else>
-    <div class="container w-75 d-flex px-5">
-      <div class="row justify-content-between w-100">
-        <div class="col text-start">
-          <button class="shadow btn color-b" @click="copy(user)"><strong>User: {{ user }}</strong></button>
-        </div>
-        <div class="col text-end">
-          <button class="shadow btn color-a" @click="copy(to)"><strong>Connected To: {{ to }}</strong></button>
-        </div>
-      </div>
-    </div>
-    <div v-if="!to">
-      <form v-on:submit.prevent="onSubmit" class="form">
-        <div class="container input-group w-50 mb-3">
-          <input
-              type="text"
-              class="form-control"
-              v-model="room"
-              placeholder="Other User ID"
-          />
-          <div class="input-group-append">
-            <button class="btn btn-dark" style="color: #78e08f;" @click="join_room"><strong>Send</strong></button>
+    <div class="d-flex justify-content-center">
+      <div class="row justify-content-center h-75 w-100">
+        <div class="col-md-4 col-xl-3 chat">
+          <div class="card mb-sm-3 mb-md-0 h-100 contacts_card">
+            <div class="card-header">
+              <p><strong>{{ user }}</strong></p>
+              <form v-on:submit.prevent="onSubmit" class="form">
+                <div class="input-group">
+                  <input
+                      type="text"
+                      class="form-control search"
+                      v-model="room"
+                      placeholder="Other User's ID"
+                  />
+                  <div class="input-group-prepend">
+                    <button class="btn btn-dark" style="color: #78e08f;" @click="join_room"><strong>Add</strong></button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="card-body contacts_body">
+              <ui class="contacts">
+                <li v-for="contact in users" :key="contact">
+                  <div class="d-flex">
+                    <p>{{ contact }}</p>
+                  </div>
+                </li>
+              </ui>
+            </div>
+            <div class="card-footer"></div>
           </div>
         </div>
-      </form>
-    </div>
-
-    <div v-else class="d-flex justify-content-center">
-      <div class="card w-50">
-        <div ref="messages" class="card-body msg_card_body">
-          <div v-for="item in messages" :key="item.message">
-            <div v-if="item.user === 'self'" class="d-flex justify-content-end mb-4">
-              <div class="msg_container color-b">
-                {{ item.message }}
+        <div class="col-md-8 col-xl-6 chat">
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex">
+                <p class="text-a"><strong>Chat with {{ to }}</strong></p>
               </div>
             </div>
-            <div v-else class="d-flex justify-content-start mb-4">
-              <div class="msg_container color-a">
-                {{ item.message }}
+            <div ref="messages" class="card-body msg_card_body">
+              <div v-for="item in messages" :key="item.message">
+                <div v-if="item.user === 'self'" class="d-flex justify-content-end mb-4">
+                  <div class="msg_container color-b">
+                    {{ item.message }}
+                  </div>
+                </div>
+                <div v-else class="d-flex justify-content-start mb-4">
+                  <div class="msg_container color-a">
+                    {{ item.message }}
+                  </div>
+                </div>
               </div>
+            </div>
+            <div class="card-footer">
+              <form v-on:submit.prevent="onSubmit" class="form">
+                <div class="input-group">
+                  <input
+                      type="text"
+                      class="form-control"
+                      v-model="message"
+                      placeholder="Message"
+                  />
+                  <div class="input-group-append">
+                    <button v-bind:disabled="!message" class="btn btn-dark" style="color: #78e08f;" @click="send"><strong>Send</strong>
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <form v-on:submit.prevent="onSubmit" class="form">
-            <div class="input-group">
-              <input
-                  type="text"
-                  class="form-control"
-                  v-model="message"
-                  placeholder="Message"
-              />
-              <div class="input-group-append">
-                <button v-bind:disabled="!message" class="btn btn-dark" style="color: #78e08f;" @click="send"><strong>Send</strong>
-                </button>
-              </div>
-            </div>
-          </form>
         </div>
       </div>
     </div>
@@ -68,10 +81,7 @@
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
 
-let URL = process.env.URL;
-if (!URL) {
-  URL = "https://enigma-protocol.azurewebsites.net"
-}
+URL = "https://enigma-protocol.azurewebsites.net"
 
 const forge = require("node-forge")
 const fetch = require("node-fetch");
@@ -90,6 +100,7 @@ export default {
       loading: true,
       messages: [],
       message: "",
+      users: [],
       user: null,
       to: null,
     };
@@ -161,6 +172,14 @@ export default {
         }
       }
 
+      if (localStorage.getItem("users")) {
+        try {
+          this.users = JSON.parse(localStorage.getItem("users"));
+        } catch(e) {
+          localStorage.removeItem("users");
+        }
+      }
+
       this.loading = false;
     },
 
@@ -187,6 +206,12 @@ export default {
         this.$cookies.set(json.to, json.publicKey);
         this[this.to] = Buffer.from(json.publicKey, 'base64').toString();
         console.log("user is connected");
+
+        if (!(this.to in this.users)) {
+          this.users.push(this.to);
+          const parsed = JSON.stringify(this.users);
+          localStorage.setItem("users", parsed);
+        }
       } else {
         alert("Wrong user");
       }
@@ -244,9 +269,64 @@ a {
   color: #42b983;
 }
 
+button {
+  border-radius: 0 15px 15px 0 !important;
+  border: 0 !important;
+}
+
+input {
+  border-radius: 15px 0 0 15px !important;
+  border: 0 !important;
+  background-color: rgba(255,255,255,0.1);
+  -webkit-transition: all .2s ease-out;
+  -moz-transition: all .2s ease-out;
+  -ms-transition: all .2s ease-out;
+  -o-transition: all .2s ease-out;
+  transition: all .2s ease-out;
+}
+
+input:focus {
+  box-shadow: none !important;
+  background-color: rgba(255,255,255,0.05);
+  color: #F9F6F7;
+  outline: 0;
+}
+
+.btn.focus, .btn:focus {
+  outline: 0;
+  box-shadow: none !important;
+}
+
+.card {
+  border-radius: 10px !important;
+  border: 1px double rgba(255,255,255,0.1) !important;
+  background-color: rgb(13,17,23);
+}
+
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
+  border: 0 !important;
+  background-color: rgba(0,0,0,0.2);
+}
+
+.card-footer {
+  border-radius: 0 0 10px 10px !important;
+  border: 0 !important;
+  background-color: rgba(0,0,0,0.4);
+}
+
 .msg_card_body {
   overflow-y: auto;
   height: 75vh;
+  color: rgb(33,37,41);
+}
+
+.text-a {
+  color: #82ccdd;
+}
+
+.text-b {
+  color: #78e08f
 }
 
 .color-a {
