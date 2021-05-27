@@ -22,40 +22,42 @@
               </form>
             </div>
             <div class="card-body contacts_body">
-              <ui class="contacts">
-                <li v-for="contact in users" :key="contact">
-                  <div class="d-flex">
-                    <p>{{ contact }}</p>
-                  </div>
-                </li>
-              </ui>
+              <div class="contacts">
+                <button class="contact_body" v-for="contact in users" :key="contact" @click="switchTo(contact)">
+                  {{ contact }}
+                </button>
+              </div>
             </div>
             <div class="card-footer"></div>
           </div>
         </div>
-        <div class="col-md-8 col-xl-6 chat">
+        <div class="col-md-8 col-xl-6 chat h-100">
           <div class="card">
             <div class="card-header">
               <div class="d-flex">
-                <p class="text-a"><strong>Chat with {{ to }}</strong></p>
+                <p class="text-b"><strong>{{ to }}</strong></p>
               </div>
             </div>
             <div ref="messages" class="card-body msg_card_body">
-              <div v-for="item in messages" :key="item.message">
+              <div v-if="!to">
+                <img src="../assets/logo.png">
+                <p style="color: #42b983;"><strong>Protocol Initiated</strong></p>
+              </div>
+              <div v-else v-for="item in messages" :key="item.message">
                 <div v-if="item.user === 'self'" class="d-flex justify-content-end mb-4">
-                  <div class="msg_container color-b">
+                  <div class="msg_container color-b text-b">
                     {{ item.message }}
                   </div>
                 </div>
                 <div v-else class="d-flex justify-content-start mb-4">
-                  <div class="msg_container color-a">
+                  <div class="msg_container color-a text-a">
                     {{ item.message }}
                   </div>
                 </div>
               </div>
             </div>
             <div class="card-footer">
-              <form v-on:submit.prevent="onSubmit" class="form">
+              <form v-if="to" v-on:submit.prevent="onSubmit" class="form">
                 <div class="input-group">
                   <input
                       type="text"
@@ -161,17 +163,6 @@ export default {
         user: user,
       });
 
-      if (this.$cookies.isKey("to")) {
-        const json = await this.connect(this.$cookies.get("to"));
-        if (json.status) {
-          this.to = this.$cookies.get("to");
-          this[this.to] = Buffer.from(json.publicKey, 'base64').toString();
-          this.retreive();
-        } else {
-          this.$cookies.remove("to");
-        }
-      }
-
       if (localStorage.getItem("users")) {
         try {
           this.users = JSON.parse(localStorage.getItem("users"));
@@ -191,7 +182,7 @@ export default {
         message: message,
         to: this.to,
       });
-      this.addMessage({user: "self", message: this.message});
+      this.addSelf({user: "self", message: this.message});
       this.message = "";
     },
 
@@ -207,7 +198,7 @@ export default {
         this[this.to] = Buffer.from(json.publicKey, 'base64').toString();
         console.log("user is connected");
 
-        if (!(this.to in this.users)) {
+        if (!(this.users.includes(this.to))) {
           this.users.push(this.to);
           const parsed = JSON.stringify(this.users);
           localStorage.setItem("users", parsed);
@@ -217,13 +208,20 @@ export default {
       }
     },
 
+    switchTo: function (id) {
+      this.to = id;
+      this.retreive();
+      const publicKey = this.$cookies.get(this.to);
+      this[this.to] = Buffer.from(publicKey, 'base64').toString();
+    },
+
     copy: async function (user) {
       await navigator.clipboard.writeText(user);
       alert("Text Copied");
     },
 
-    addMessage: function (json) {
-      this.messages.push(json) //adding new message to the list
+    addSelf: function (json) {
+      this.messages.push(json)
       this.$nextTick(function () {
         const container = this.$refs.messages;
         container.scrollTop = container.scrollHeight;
@@ -231,6 +229,26 @@ export default {
 
       const parsed = JSON.stringify(this.messages);
       localStorage.setItem(this.to, parsed);
+    },
+
+    addMessage: function (json) {
+      let temp = [];
+      if (localStorage.getItem(json.user)) {
+        temp = JSON.parse(localStorage.getItem(json.user));
+      }
+
+      temp.push(json)
+      localStorage.setItem(json.user, JSON.stringify(temp));
+      
+      if (this.to === json.user) {
+        this.messages = temp
+      }
+
+      this.$nextTick(function () {
+        const container = this.$refs.messages;
+        container.scrollTop = container.scrollHeight;
+      })
+
     },
   },
   beforeMount() {
@@ -301,6 +319,7 @@ input:focus {
   border-radius: 10px !important;
   border: 1px double rgba(255,255,255,0.1) !important;
   background-color: rgb(13,17,23);
+  height: 85vh;
 }
 
 .card-header {
@@ -318,23 +337,32 @@ input:focus {
 .msg_card_body {
   overflow-y: auto;
   height: 75vh;
-  color: rgb(33,37,41);
+}
+
+.contact_body {
+  border-radius: 15px !important;
+  border: 1px double rgba(0,0,0,0.3) !important;
+  background-color: rgba(55,55,55,0.1);
+  text-align: center;
+  padding: 1rem;
+  width: 100%;
+  color: #F9F6F7;
 }
 
 .text-a {
-  color: #82ccdd;
+  color: rgb(33,37,41);
 }
 
 .text-b {
-  color: #78e08f
+  color: #F9F6F7;
 }
 
 .color-a {
-  background-color: #82ccdd;
+  background-color: #FFD700;
 }
 
 .color-b {
-  background-color: #78e08f;
+  background-color: #1F4287;
 }
 
 .msg_container {
