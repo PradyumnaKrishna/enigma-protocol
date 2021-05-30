@@ -13,7 +13,7 @@
                 <div class="input-group">
                   <input
                     type="text"
-                    class="form-control search"
+                    class="form-control etrans"
                     v-model="room"
                     placeholder="Other User's ID"
                   />
@@ -21,7 +21,7 @@
                     <button
                       class="btn btn-dark"
                       style="color: #78e08f"
-                      @click="join_room"
+                      @click="join_room(room)"
                     >
                       <strong>Add</strong>
                     </button>
@@ -32,7 +32,7 @@
             <div class="card-body contacts_body">
               <div class="contacts">
                 <button
-                  class="contact_body"
+                  class="contact_body etrans"
                   v-for="contact in users"
                   :key="contact"
                   :style="
@@ -86,7 +86,7 @@
                 <div class="input-group">
                   <input
                     type="text"
-                    class="form-control"
+                    class="form-control etrans"
                     v-model="message"
                     placeholder="Message"
                   />
@@ -143,45 +143,58 @@ export default {
       await navigator.clipboard.writeText(text);
       alert("Text Copied");
     },
-    
+
     login: async function () {
-      const response = await fetch(
-        `${URL}/login/${this.$cookies.get("publicKey")}`
-      );
-      const json = await response.json();
-      this.user = json.user;
-      this.$cookies.set("user", this.user);
+      const publicKey = this.$cookies.get("publicKey");
+      if (this.$cookies.isKey("user")) {
+        const user = this.$cookies.get("user");
+        const response = await fetch(`${URL}/connect/${user}`);
+        const json = await response.json();
+
+        if (json.status) {
+          this.user = user;
+        } else {
+          const response = await fetch(`${URL}/login/${publicKey}`);
+          const json = await response.json();
+          this.user = json.user;
+          this.$cookies.set("user", this.user);
+        }
+      } else {
+        const response = await fetch(`${URL}/login/${publicKey}`);
+        const json = await response.json();
+        this.user = json.user;
+        this.$cookies.set("user", this.user);
+      }
     },
 
     connect: async function (user) {
       const response = await fetch(`${URL}/connect/${user}`);
-      return await response.json();
+      const json = await response.json();
+
+      if (json.status) {
+        this.$cookies.set(user, json.publicKey);
+        return true;
+      }
+      return false;
     },
 
-    retreive: function (type, value) {
+    retreive: function (value) {
       if (localStorage.getItem(value)) {
         try {
-          this[type] = JSON.parse(localStorage.getItem(value))
+          this.messages = JSON.parse(localStorage.getItem(value));
         } catch (e) {
           localStorage.removeItem(value);
         }
+      } else {
+        this.messages = [];
       }
     },
 
-    join_room: async function () {
-      const json = await this.connect(this.room);
-      if (this.room !== this.user && json.status) {
-        this.to = this.room;
-        this.$cookies.set("to", this.to);
-        this.$cookies.set(json.to, json.publicKey);
-        this[this.to] = Buffer.from(json.publicKey, "base64").toString();
-        console.log("user is connected");
-
-        if (!this.users.includes(this.to)) {
-          this.users.push(this.to);
-          const parsed = JSON.stringify(this.users);
-          localStorage.setItem("users", parsed);
-        }
+    join_room: async function (user) {
+      const response = await this.connect(user);
+      if (user !== this.user && response) {
+        this.rearrange(user);
+        this.switchTo(user);
       } else {
         alert("Wrong user");
       }
@@ -189,7 +202,7 @@ export default {
 
     switchTo: async function (id) {
       this.to = id;
-      await this.retreive("messages", id);
+      await this.retreive(id);
       const publicKey = this.$cookies.get(this.to);
       this[this.to] = Buffer.from(publicKey, "base64").toString();
       this.publicKey = forge.pki.publicKeyFromPem(this[this.to]);
@@ -201,12 +214,14 @@ export default {
     send: async function () {
       const message = this.publicKey.encrypt(this.message);
       socket.emit("send_message", {
-        user: this.$cookies.get("user"),
+        user: this.user,
         message: message,
         to: this.to,
       });
+
       await this.messages.push({ user: "self", message: this.message });
-      this.setMessages(this.to, JSON.stringify(this.messages))
+      this.setMessages(this.to, JSON.stringify(this.messages));
+      this.rearrange(this.to);
       this.message = "";
     },
 
@@ -215,6 +230,16 @@ export default {
 
       const container = this.$refs.messages;
       container.scrollTop = container.scrollHeight;
+    },
+
+    rearrange: function (user) {
+      const users = this.users.slice();
+      users.unshift(user);
+      console.log(users);
+
+      this.users = [...new Set(users)];
+      const parsed = JSON.stringify(this.users);
+      localStorage.setItem("users", parsed);
     },
 
     load: async function () {
@@ -234,23 +259,14 @@ export default {
         });
       }
 
-      if (this.$cookies.isKey("user")) {
-        const json = await this.connect(this.$cookies.get("user"));
-        if (json.status) {
-          this.user = this.$cookies.get("user");
-        } else {
-          await this.login();
-        }
-      } else {
-        await this.login();
-      }
-
-      const user = this.$cookies.get("user");
+      await this.login();
       socket.emit("join_room", {
-        user: user,
+        user: this.user,
       });
 
-      this.retreive("users", "users");
+      if (localStorage.getItem("users")) {
+        this.users = JSON.parse(localStorage.getItem("users"));
+      }
       this.loading = false;
     },
   },
@@ -269,8 +285,11 @@ export default {
       temp.push({ user: data.user, message: message });
       if (this.to === data.user) {
         this.messages = temp;
+      } else if (!this.users.includes(data.user)) {
+        this.connect(data.user);
       }
 
+      this.rearrange(data.user);
       this.setMessages(data.user, JSON.stringify(temp));
     });
 
@@ -311,11 +330,6 @@ input {
   border: 0 !important;
   background-color: rgba(255, 255, 255, 0.1);
   color: #f9f6f7;
-  -webkit-transition: all 0.2s ease-out;
-  -moz-transition: all 0.2s ease-out;
-  -ms-transition: all 0.2s ease-out;
-  -o-transition: all 0.2s ease-out;
-  transition: all 0.2s ease-out;
 }
 
 input:focus {
@@ -390,5 +404,13 @@ input:focus {
   position: relative;
   max-width: 75%;
   text-align: left;
+}
+
+.etrans {
+  -webkit-transition: all 0.2s ease-out;
+  -moz-transition: all 0.2s ease-out;
+  -ms-transition: all 0.2s ease-out;
+  -o-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
 }
 </style>
