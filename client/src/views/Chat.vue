@@ -140,11 +140,13 @@ export default {
   },
   methods: {
     copy: async function (text) {
+      // finction to copy text to clipboard
       await navigator.clipboard.writeText(text);
       alert("Text Copied");
     },
 
     login: async function () {
+      // login function used to restore session using cookie
       const publicKey = this.$cookies.get("publicKey");
       if (this.$cookies.isKey("user")) {
         const user = this.$cookies.get("user");
@@ -168,6 +170,7 @@ export default {
     },
 
     connect: async function (user) {
+      // function to set publicKey of user and return status
       const response = await fetch(`${URL}/connect/${user}`);
       const json = await response.json();
 
@@ -178,7 +181,8 @@ export default {
       return false;
     },
 
-    retreive: function (value) {
+    retrieve: function (value) {
+      // function retrieve messages from localStorage
       if (localStorage.getItem(value)) {
         try {
           this.messages = JSON.parse(localStorage.getItem(value));
@@ -191,6 +195,7 @@ export default {
     },
 
     join_room: async function (user) {
+      // make connection with other user
       const response = await this.connect(user);
       if (user !== this.user && response) {
         this.rearrange(user);
@@ -201,8 +206,9 @@ export default {
     },
 
     switchTo: async function (id) {
+      // switch to the user select
       this.to = id;
-      await this.retreive(id);
+      await this.retrieve(id);
       const publicKey = this.$cookies.get(this.to);
       this[this.to] = Buffer.from(publicKey, "base64").toString();
       this.publicKey = forge.pki.publicKeyFromPem(this[this.to]);
@@ -212,6 +218,7 @@ export default {
     },
 
     send: async function () {
+      // send message after encrypting and append to array
       const message = this.publicKey.encrypt(this.message);
       socket.emit("send_message", {
         user: this.user,
@@ -226,6 +233,7 @@ export default {
     },
 
     setMessages: function (user, parsed) {
+      // autoscroll to the bottom of container
       localStorage.setItem(user, parsed);
 
       const container = this.$refs.messages;
@@ -233,9 +241,9 @@ export default {
     },
 
     rearrange: function (user) {
+      // rearrange user
       const users = this.users.slice();
       users.unshift(user);
-      console.log(users);
 
       this.users = [...new Set(users)];
       const parsed = JSON.stringify(this.users);
@@ -246,9 +254,11 @@ export default {
       this.loading = true;
 
       if (this.$cookies.isKey("privateKey")) {
+        // loads RSA keypair if stored in cookies
         this.privateKey = Buffer.from(this.$cookies.get("privateKey"), "base64").toString();
         this.privateKey = forge.pki.privateKeyFromPem(this.privateKey);
       } else {
+        // generates RSA keypair
         await forge.pki.rsa.generateKeyPair({ bits: 2048, workers: 2 }, (err, keypair) => {
             this.publicKey = forge.pki.publicKeyToPem(keypair.publicKey);
             this.$cookies.set("publicKey", Buffer.from(this.publicKey).toString("base64"));
@@ -259,11 +269,15 @@ export default {
         });
       }
 
+      // restore session
       await this.login();
+
+      // join room
       socket.emit("join_room", {
         user: this.user,
       });
 
+      // retrieve users from localStorage
       if (localStorage.getItem("users")) {
         this.users = JSON.parse(localStorage.getItem("users"));
       }
@@ -274,6 +288,7 @@ export default {
     this.load();
   },
   mounted() {
+    // socket to recieve messages
     socket.on("receive_message", (data) => {
       const message = this.privateKey.decrypt(data.message);
 
@@ -286,6 +301,7 @@ export default {
       if (this.to === data.user) {
         this.messages = temp;
       } else if (!this.users.includes(data.user)) {
+        // add to users if not present
         this.connect(data.user);
       }
 
