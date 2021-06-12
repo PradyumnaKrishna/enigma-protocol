@@ -6,6 +6,7 @@ COPY . .
 
 # build stage
 FROM base as build-stage
+ENV VUE_APP_APIURL='http://localhost:5000'
 RUN npm run build
 
 # production stage

@@ -12,7 +12,7 @@ jobs:
         working-directory: ./client
     runs-on: ubuntu-18.04
     env:
-      VUE_APP_APIURL: ${{ github.VUE_APP_APIURL }}
+      VUE_APP_APIURL: ${{ secrets.VUE_APP_APIURL }}
     steps:
       - uses: actions/checkout@v2
 
