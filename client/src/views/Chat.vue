@@ -114,7 +114,7 @@
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
 
-URL = "https://enigma-protocol.azurewebsites.net";
+URL = process.env.VUE_APP_APIURL;
 
 const forge = require("node-forge");
 const fetch = require("node-fetch");
