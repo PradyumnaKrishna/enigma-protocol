@@ -11,14 +11,10 @@ jobs:
       run:
         working-directory: ./client
     runs-on: ubuntu-18.04
+    env:
+      VUE_APP_APIURL: ${{ github.VUE_APP_APIURL }}
     steps:
       - uses: actions/checkout@v2
-
-      - name: Make envfile
-        uses: SpicyPizza/create-envfile@v1
-        with:
-          envkey_VUE_APP_APIURL: ${{ secrets.VUE_APP_APIURL }}
-          directory: client
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -33,10 +29,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm ci
-      - run: npm run build
+      - name: Build
+        run: |
+          npm ci
+          npm run build
 
-      - name: deploy
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
