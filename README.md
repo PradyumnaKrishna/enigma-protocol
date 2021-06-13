@@ -2,35 +2,32 @@
 
 # Enigma Protocol [![Build][Build-Badge]][Builds] [![Pages][Pages-Badge]][Pages]
 
-Hello Friends, I am trying to build an end to end encrypted messenger using Flask, SocketIO, and Vue.js. So, Here is my roadmap to achieve it.
+Hello Friends, I built an end to end encrypted messenger using Flask, SocketIO, and Vue.js.
 
 
-## Initial Roadmap 
+## Working
 
-**Moved to [Projects](https://github.com/PradyumnaKrishna/enigma-protocol/projects/2).**
+The Chat is encrypted using RSA encrytion that is a public key encryption or you can say asymmetric encryption. RSA gives two keys, public key and private key, public key is used to encrypt messages while private key is used to decrypt them.
+
+I have used [Diffie–Hellman key exchange](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) to exchange the public keys of the users. These keys are used by user A to encrypt messages and send them to another user B and user B can decrypt them using his private key.
+
+Socket.io is used to send and receive messages, these messages are encrypted and sent to the user having the private key to decrypt it.
+
+I created some Flask API to store the information* of the users in a SQLite database and relogin as the user if page reloaded.
+
+Finally Vue.js is used to perform client side encryption/decryption, send/receive message and login or connect to the user.
+
+*Information contains `id`, `publicKey`, and `last_activity` of a user.
 
 
-## Logic
+## Docs
 
-Here is a logic behind this system, RSA is a cryptographic algorithm that gives you two pair of keys: public and private.
-
-Public Key is used to encrypt messages while private key is used to decrypt them, no one can decrypt any encrypted message without private key.
-
-Thats why I chose to exchange those public keys, which means anyone can encrypt and send encrypted messaged to the user but they can't decrypt them.
-
-The logic behind database storing facility is simple, Database is used to store messages with session, user and timestamp.
-
-If by chance anyone wants to restore that session, he can by retrieving messages from database.
-
-~~But here is a small drawback of end-to-end encryption. The user can't decrypt their messages, those messages are stored to the database but the user doesn't have the key to decrypt them.~~
-Recently, I changed the method and stored the messages on client side also, which is used to retreive messages.
-
-**`...`**
+Docs are coming soon on the website: https://protocol.onpy.in/#/docs.
 
 
 ## Development
 
-The Development is in progress, so those who wants to develop with me just clone this repository using:
+Those who wants to develop or build the code then, just clone this repository using:
 
 ```bash
 git clone https://github.com/PradyumnaKrishna/enigma-protocol.git
@@ -56,9 +53,29 @@ Supported Python Versions
 ```bash
 npm ci
 ```
+- run the development server
+```bash
+npm run serve
+```
+- build the vue.js app
+```bash
+npm run build
+```
+- OR use docker to build
+```bash
+docker build -t protocol-client .
+```
+
+**NOTE**: To run the vue.js app you need to confiure an env variables, open `.env.sample` to see an sample environment file.
 
 Supported Node.js Version
 - I used current LTS version, that is node v14.17.0
+
+
+## What next
+
+I opened a project on this github repo, If possible I will commit and make additions to this repository as mentioned in the project.
+
 
 [Build-Badge]:          https://github.com/PradyumnaKrishna/Enigma-Protocol/actions/workflows/docker-build.yml/badge.svg
 
