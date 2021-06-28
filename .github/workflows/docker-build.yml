@@ -5,6 +5,8 @@ on:
     # Publish `main` as Docker `latest` image.
     branches:
       - main
+    paths:
+      - server/python/**
 
   # Run tests for any PRs.
   pull_request:
@@ -23,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Run tests
-        working-directory: ./server
+        working-directory: ./server/python
         run: |
           if [ -f docker-compose.test.yml ]; then
             docker-compose --file docker-compose.test.yml build
@@ -49,7 +51,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        working-directory: ./server
+        working-directory: ./server/python
         run: docker build . --file Dockerfile --tag $IMAGE_NAME
 
       - name: Log into registry
