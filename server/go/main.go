@@ -1,32 +1,23 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
+    "main/db"
 	"github.com/gorilla/mux"
 )
 
-func randomHex(n int) (string, error) {
-	bytes := make([]byte, n)
-	if _, err := rand.Read(bytes); err != nil {
-	  return "", err
-	}
-	return hex.EncodeToString(bytes), nil
+
+var conn = db.Conn{
+	DB: db.NewConn(),
 }
 
-
-type newResponse struct {
-	User string `json:"user"`
-}
-
-
-type connectResponse struct {
+type Response struct {
 	Status bool `json:"status"`
+	User string `json:"user,omitempty"`
 	To string `json:"to,omitempty"`
 	PublicKey string `json:"publicKey,omitempty"`
 }
@@ -52,14 +43,24 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func new(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-    publicKey := vars["publicKey"]
 
-	log.Println(publicKey)
+	log.Println(vars["publicKey"])
 
-	hex, _ := randomHex(5)
+	response := Response{
+		Status: true,
+		User: "hex",
+	}
 
-	response := newResponse{
-		User: hex,
+	JSONResponse(w, 200, response)
+}
+
+func connect(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	log.Println(vars["id"])
+
+	response := Response{
+		Status: true,
 	}
 
 	JSONResponse(w, 200, response)
