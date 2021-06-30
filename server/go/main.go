@@ -6,14 +6,13 @@ import (
 	"log"
 	"net/http"
 
-    "main/db"
 	"github.com/gorilla/mux"
+	"main/db"
 )
 
 
-var conn = db.Conn{
-	DB: db.NewConn(),
-}
+var database = &db.DataBase{DB: db.NewConn()}
+
 
 type Response struct {
 	Status bool `json:"status"`
@@ -41,26 +40,33 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func new(w http.ResponseWriter, r *http.Request) {
+func login(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	log.Println(vars["publicKey"])
+	id := database.SaveUser(vars["publicKey"])
 
 	response := Response{
 		Status: true,
-		User: "hex",
+		User: id,
 	}
 
 	JSONResponse(w, 200, response)
 }
 
+
 func connect(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	id := vars["id"]
 
-	log.Println(vars["id"])
+	publicKey, err := database.GetPublicKey(id)
 
-	response := Response{
-		Status: true,
+	response := Response{Status: false}
+	if err == nil {
+		response = Response{
+			Status: true,
+			To: id,
+			PublicKey: publicKey,
+		}
 	}
 
 	JSONResponse(w, 200, response)
@@ -68,11 +74,13 @@ func connect(w http.ResponseWriter, r *http.Request) {
 
 
 func handleRequests() {
-    myRouter := mux.NewRouter()
+    myRouter := mux.NewRouter().StrictSlash(true)
     myRouter.HandleFunc("/", homePage)
-    myRouter.HandleFunc("/login/{publicKey}", new)
+    myRouter.HandleFunc("/login/{publicKey}", login)
+    myRouter.HandleFunc("/connect/{id}", connect)
     log.Fatal(http.ListenAndServe(":8000", myRouter))
 }
+
 
 func main() {
 	handleRequests()
