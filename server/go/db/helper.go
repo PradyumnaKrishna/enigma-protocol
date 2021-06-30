@@ -2,11 +2,10 @@ package db
 
 import (
 	"crypto/rand"
-    "database/sql"
+	"database/sql"
 	"encoding/hex"
 	"errors"
 	"fmt"
-    // "log"
 	"time"
 
     _ "github.com/mattn/go-sqlite3"
@@ -15,8 +14,8 @@ import (
 const FILE = "users.db"
 const TABLE = "Users"
 
-type Conn struct {
-	DB *sql.DB
+type DataBase struct {
+	*sql.DB
 }
 
 
@@ -39,8 +38,8 @@ func NewConn() *sql.DB {
 }
 
 
-func (conn Conn) GetPublicKey(id string) (string, error) {
-	rows, _ := conn.DB.Query(fmt.Sprintf("SELECT publicKey FROM %s WHERE id = ?", TABLE), id)
+func (db *DataBase) GetPublicKey(id string) (string, error) {
+	rows, _ := db.Query(fmt.Sprintf("SELECT publicKey FROM %s WHERE id = ?", TABLE), id)
 
 	var publicKey string
 	for rows.Next() {
@@ -52,17 +51,25 @@ func (conn Conn) GetPublicKey(id string) (string, error) {
 	if len(publicKey) > 0 {
 		return publicKey, nil
 	} else {
-		return "", errors.New("Wrong publicKey")
+		return "", errors.New("wrong publicKey")
 	}
 }
 
-func (conn Conn) SaveUser(publicKey string) string {
+
+func (db *DataBase) SaveUser(publicKey string) string {
 	id, _ := randomHex(5)
 	date := time.Now()
 
-
-	statement, _ := conn.DB.Prepare(fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?)", TABLE))
+	statement, _ := db.Prepare(fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?)", TABLE))
 	statement.Exec(id, publicKey, date)
 
 	return id
+}
+
+
+func (db *DataBase) UpdateLastActivity(id string) {
+	date := time.Now()
+
+	statement, _ := db.Prepare(fmt.Sprintf("UPDATE %s SET last_activity = ? WHERE ID = ?", TABLE))
+	statement.Exec(date, id)
 }
