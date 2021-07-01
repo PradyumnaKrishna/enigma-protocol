@@ -6,12 +6,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+
 	"main/db"
 )
 
 
 var database = &db.DataBase{DB: db.NewConn()}
+var myRouter = mux.NewRouter().StrictSlash(true)
 
 
 type Response struct {
@@ -19,6 +22,12 @@ type Response struct {
 	User string `json:"user,omitempty"`
 	To string `json:"to,omitempty"`
 	PublicKey string `json:"publicKey,omitempty"`
+}
+
+type Message struct {
+	User string `json:"user"`
+	Text string `json:"message,omitempty"`
+	To string `json:"to,omitempty"`
 }
 
 
@@ -73,15 +82,29 @@ func connect(w http.ResponseWriter, r *http.Request) {
 }
 
 
+func sockets() {
+	// Define Sockets
+}
+
+
+func InititalizeRoutes() {
+	myRouter.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	})
+}
+
+
 func handleRequests() {
-    myRouter := mux.NewRouter().StrictSlash(true)
     myRouter.HandleFunc("/", homePage)
     myRouter.HandleFunc("/login/{publicKey}", login)
     myRouter.HandleFunc("/connect/{id}", connect)
-    log.Fatal(http.ListenAndServe(":8000", myRouter))
+    log.Fatal(http.ListenAndServe(":8000", handlers.CORS(handlers.AllowedHeaders([]string{"Content-Type"}), handlers.AllowedOrigins([]string{"*"}))(myRouter)))
 }
 
 
 func main() {
+	sockets()
+	InititalizeRoutes()
 	handleRequests()
 }
