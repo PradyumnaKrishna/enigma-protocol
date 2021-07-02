@@ -2,9 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
+
+	socketio "github.com/googollee/go-socket.io"
+	"github.com/googollee/go-socket.io/engineio"
+	"github.com/googollee/go-socket.io/engineio/transport"
+	"github.com/googollee/go-socket.io/engineio/transport/polling"
+	"github.com/googollee/go-socket.io/engineio/transport/websocket"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -13,8 +18,23 @@ import (
 )
 
 
+var allowOriginFunc = func(r *http.Request) bool {
+	return true
+}
+
+
 var database = &db.DataBase{DB: db.NewConn()}
 var myRouter = mux.NewRouter().StrictSlash(true)
+var server = socketio.NewServer(&engineio.Options{
+	Transports: []transport.Transport{
+		&polling.Transport{
+			CheckOrigin: allowOriginFunc,
+		},
+		&websocket.Transport{
+			CheckOrigin: allowOriginFunc,
+		},
+	},
+})
 
 
 type Response struct {
@@ -44,14 +64,15 @@ func JSONResponse(w http.ResponseWriter, code int, output interface{}) {
 
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, "ok")
-    fmt.Println("Endpoint Hit: homePage")
+	log.Println("/ endpoint reached")
+	w.Write([]byte("ok"))
 }
 
 
 func login(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+	log.Println("/login endpoint reached")
 
+	vars := mux.Vars(r)
 	id := database.SaveUser(vars["publicKey"])
 
 	response := Response{
@@ -64,6 +85,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 
 func connect(w http.ResponseWriter, r *http.Request) {
+	log.Println("/connect endpoint reached")
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -82,29 +105,58 @@ func connect(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func sockets() {
-	// Define Sockets
-}
+func InitializeSockets() {
+	server.OnConnect("/", func(s socketio.Conn) error {
+		s.SetContext("")
+		log.Println("connected:", s.ID())
+		return nil
+	})
 
+	server.OnEvent("/", "join_room", func(s socketio.Conn, m Message) {
+		s.Join(m.User)
+		server.BroadcastToRoom("/", m.User, "room_announcements", "Join Room Callback")
+	})
 
-func InititalizeRoutes() {
-	myRouter.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	server.OnEvent("/", "send_message", func(s socketio.Conn, m Message) {
+		log.Println(m.To)
+		server.BroadcastToRoom("/", m.To, "receive_message", m)
 	})
 }
 
 
-func handleRequests() {
-    myRouter.HandleFunc("/", homePage)
-    myRouter.HandleFunc("/login/{publicKey}", login)
-    myRouter.HandleFunc("/connect/{id}", connect)
-    log.Fatal(http.ListenAndServe(":8000", handlers.CORS(handlers.AllowedHeaders([]string{"Content-Type"}), handlers.AllowedOrigins([]string{"*"}))(myRouter)))
+func InitializeRoutes() {
+	myRouter.HandleFunc("/", homePage)
+	myRouter.HandleFunc("/login/{publicKey}", login)
+	myRouter.HandleFunc("/connect/{id}", connect)
+
+	cors := handlers.CORS(
+		handlers.AllowedHeaders([]string{"content-type"}),
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowCredentials(),
+	)
+
+	myRouter.Use(cors)
+}
+
+
+func Init() {
+	go func() {
+		if err := server.Serve(); err != nil {
+			log.Fatalf("socketio listen error: %s\n", err)
+		}
+	}()
+	defer server.Close()
+
+	http.Handle("/socket.io/", server)
+	http.Handle("/", myRouter)
+
+	log.Println("Serving at localhost:8000...")
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
 
 func main() {
-	sockets()
-	InititalizeRoutes()
-	handleRequests()
+	InitializeSockets()
+	InitializeRoutes()
+	Init()
 }
