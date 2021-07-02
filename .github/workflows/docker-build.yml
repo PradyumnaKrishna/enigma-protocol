@@ -2,72 +2,46 @@ name: Docker Build
 
 on:
   push:
-    # Publish `main` as Docker `latest` image.
     branches:
       - main
     paths:
-      - server/python/**
-
-  # Run tests for any PRs.
-  pull_request:
+      - server/**
 
 env:
-  IMAGE_NAME: enigma-protocol/server
-  USER: pradyumnakrishna
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/pradyumnakrishna/enigma-protocol
 
 jobs:
-  # Run tests.
-  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-  test:
+  build-and-push-image:
     runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Run tests
-        working-directory: ./server/python
-        run: |
-          if [ -f docker-compose.test.yml ]; then
-            docker-compose --file docker-compose.test.yml build
-            docker-compose --file docker-compose.test.yml run sut
-          else
-            docker build . --file Dockerfile
-          fi
-
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
-  push:
-    # Ensure test job passes before pushing image.
-    needs: test
-
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-
     permissions:
       contents: read
       packages: write
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Set DATE
+        run: echo "DATE=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
 
-      - name: Build image
-        working-directory: ./server/python
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push image
-        run: |
-          IMAGE_ID=ghcr.io/$USER/$IMAGE_NAME
-          
-          VERSION=$(date '+%Y-%m-%d')
+      - name: Build and Push Go Server
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: server/go
+          push: true
+          tags: ${{ env.IMAGE_NAME }}/go-server:latest,${{ env.IMAGE_NAME }}/go-server:${{ env.DATE }}
 
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
-
-          docker tag $IMAGE_NAME $IMAGE_ID
-          docker push $IMAGE_ID
+      - name: Build and Push Python Server
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: server/python
+          push: true
+          tags: ${{ env.IMAGE_NAME }}/python-server:latest,${{ env.IMAGE_NAME }}/python-server:${{ env.DATE }}
