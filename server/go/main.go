@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
 	socketio "github.com/googollee/go-socket.io"
 	"github.com/googollee/go-socket.io/engineio"
@@ -150,8 +151,10 @@ func Init() {
 	http.Handle("/socket.io/", server)
 	http.Handle("/", myRouter)
 
-	log.Println("Serving at localhost:8000...")
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	port := os.Getenv("PORT")
+
+	log.Println("Serving at localhost:"+port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
 
