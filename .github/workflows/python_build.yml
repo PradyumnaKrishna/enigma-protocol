@@ -12,10 +12,6 @@ on:
     paths:
       - server/python/**
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/pradyumnakrishna/enigma-protocol/python-server
-
 jobs:
   lint-and-test:
     defaults:
@@ -32,13 +28,14 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Install Linters
-        run: pip install pylint black
+          pip install -r requirements-test.txt
       - name: Lint
         run: |
           pylint *.py
           black --check .
+      - name: Test
+        run: |
+          pytest tests
 
   build:
     needs: lint-and-test
@@ -47,6 +44,10 @@ jobs:
       contents: read
       packages: write
       pull-requests: write
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ghcr.io/pradyumnakrishna/enigma-protocol/python-server
     
     steps:
       - name: Set DATE
