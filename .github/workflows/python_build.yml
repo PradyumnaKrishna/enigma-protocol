@@ -6,6 +6,11 @@ on:
       - main
     paths:
       - server/python/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - server/python/**
 
 env:
   REGISTRY: ghcr.io
