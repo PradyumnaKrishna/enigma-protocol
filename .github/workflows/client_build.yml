@@ -38,13 +38,16 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Set outputs
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short ${{ github.event.pull_request.head.sha }})"
       - name: Preview Pull Request
         if: ${{ github.event_name == 'pull_request' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./client/dist
-          destination_dir: preview/${{ github.sha }}
+          destination_dir: preview/${{ steps.vars.outputs.sha_short }}
           cname: protocol.onpy.in
       - name: Release
         if: ${{ github.event_name == 'push' }}
@@ -58,4 +61,4 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            Preview avaiable to https://protocol.onpy.in/preview/${{ github.sha }}
+            Preview avaiable to https://protocol.onpy.in/preview/${{ steps.vars.outputs.sha_short }}
