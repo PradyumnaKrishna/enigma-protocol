@@ -68,3 +68,13 @@ jobs:
           context: server/python
           push: true
           tags: ${{ env.IMAGE_TAG }}
+      - name: Publish
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            Python Server image build with tag ${{ env.IMAGE_TAG }}, Use command:
+            ```
+            docker pull ${{ env.IMAGE_TAG }}
+            ```
+            for pull the image and test it.
