@@ -15,6 +15,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ghcr.io/pradyumnakrishna/enigma-protocol/python-server
+  IMAGE_TAG: ghcr.io/pradyumnakrishna/enigma-protocol/python-server:${{ github.ref }}
 
 jobs:
   test-and-build:
@@ -41,7 +42,6 @@ jobs:
           black --check .
 
   deploy:
-    if: ${{ github.event_name == 'push' }}
     needs: test-and-build
     runs-on: ubuntu-latest
     permissions:
@@ -59,9 +59,12 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set Image Tag to latest
+        if: ${{ github.event_name == 'push' }}
+        run: echo "IMAGE_TAG=${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
       - name: Build and Push Server Image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: server/python
           push: true
-          tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ env.DATE }}
+          tags: ${{ env.IMAGE_TAG }}
