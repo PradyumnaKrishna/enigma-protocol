@@ -15,7 +15,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ghcr.io/pradyumnakrishna/enigma-protocol/python-server
-  IMAGE_TAG: ghcr.io/pradyumnakrishna/enigma-protocol/python-server:${{ github.ref }}
+  IMAGE_TAG: ghcr.io/pradyumnakrishna/enigma-protocol/python-server:${{ github.sha }}
 
 jobs:
   test-and-build:
