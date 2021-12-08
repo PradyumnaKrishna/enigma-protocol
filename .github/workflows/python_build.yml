@@ -41,6 +41,7 @@ jobs:
           black --check .
 
   deploy:
+    if: ${{ github.event_name == 'push' }}
     needs: test-and-build
     runs-on: ubuntu-latest
     permissions:
