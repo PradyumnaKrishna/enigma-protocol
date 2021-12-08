@@ -15,10 +15,10 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ghcr.io/pradyumnakrishna/enigma-protocol/python-server
-  IMAGE_TAG: ghcr.io/pradyumnakrishna/enigma-protocol/python-server:${{ github.sha }}
+  IMAGE_TAG: ghcr.io/pradyumnakrishna/enigma-protocol/python-server:${{ github.sha::7 }}
 
 jobs:
-  test-and-build:
+  lint-and-test:
     defaults:
       run:
         working-directory: server/python
@@ -41,8 +41,8 @@ jobs:
           pylint *.py
           black --check .
 
-  deploy:
-    needs: test-and-build
+  build:
+    needs: lint-and-test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -74,8 +74,7 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            Python Server image build with tag ${{ env.IMAGE_TAG }}, Use command:
+            Python Server image build with tag consist commit hash, Use command given below to pull it.
             ```
             docker pull ${{ env.IMAGE_TAG }}
             ```
-            for pull the image and test it.
