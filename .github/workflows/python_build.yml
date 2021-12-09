@@ -100,7 +100,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set Image Tags
         run: |
-          export SHORT_SHA=$(git rev-parse --short ${{ github.event.pull_request.head.sha }})
+          export SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
           if [[ ${{ github.event_name }} == 'push' ]]; then
             echo "IMAGE_TAG=${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:$SHORT_SHA" >> $GITHUB_ENV
           else

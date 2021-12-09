@@ -3,6 +3,7 @@ name: Clean Build
 on:
   schedule:
     - cron: '* 2 1 * *' # Every Month
+  workflow_dispatch:
 
 jobs:
   release:
