@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/PradyumnaKrishna/PradyumnaKrishna/master/logo.svg" alt="Logo" title="Logo" align="right" height="50" width="50"/>
 
-# Enigma Protocol [![Build][Build-Badge]][Builds] [![Pages][Pages-Badge]][Pages]
+# Enigma Protocol [![Python Server][Python-Badge]][Python] [![Github Pages][Pages-Badge]][Pages]
 
 Hello Friends, I built an end to end encrypted messenger using Flask, SocketIO, and Vue.js.
 
@@ -20,11 +20,6 @@ Finally Vue.js is used to perform client side encryption/decryption, send/receiv
 *Information contains `id`, `publicKey`, and `last_activity` of a user.
 
 
-## Docs
-
-Docs are coming soon on the website: https://protocol.onpy.in/#/docs.
-
-
 ## Development
 
 Those who wants to develop or build the code then, just clone this repository using:
@@ -34,54 +29,48 @@ git clone https://github.com/PradyumnaKrishna/enigma-protocol.git
 ```
 
 ### Server (Python 3)
-- Open up the server folder
-- install the requirements
+- Install Dependencies
 ```bash
 pip3 install -r requirements.txt
 ```
-- OR build docker image
+- Run the Server
 ```bash
-docker build -t protocol-server .
+python main.py
 ```
 
 Supported Python Versions
 - Python 3.7/3.8
 
+
+### Server (Golang)
+This is on hold because go-socket.io doesn't support newer versions of client-socket.io.
+
+
 ### Client (Vue.js)
-- Open up the client folder
-- install the requirements
+- Install Dependencies
 ```bash
 npm ci
 ```
-- run the development server
+- Run the development client
 ```bash
 npm run serve
-```
-- build the vue.js app
-```bash
-npm run build
-```
-- OR use docker to build
-```bash
-docker build -t protocol-client .
 ```
 
 **NOTE**: To run the vue.js app you need to confiure an env variables, open `.env.sample` to see an sample environment file.
 
 Supported Node.js Version
-- I used current LTS version, that is node v14.17.0
-
+- Current LTS version (14) or newer
 
 ## What next
 
-I opened a project on this github repo, If possible I will commit and make additions to this repository as mentioned in the project.
+I will create Issues and try to fix them.
 
 
-[Build-Badge]:          https://github.com/PradyumnaKrishna/Enigma-Protocol/actions/workflows/docker-build.yml/badge.svg
+[Python-Badge]:          https://github.com/PradyumnaKrishna/Enigma-Protocol/actions/workflows/python_build.yml/badge.svg
 
-[Builds]:               https://github.com/PradyumnaKrishna/Enigma-Protocol/actions/workflows/docker-build.yml
+[Python]:                https://ghcr.io/PradyumnaKrishna/enigma-protocol/python-server
 
-[Pages-Badge]:          https://github.com/PradyumnaKrishna/Enigma-Protocol/actions/workflows/github-pages.yml/badge.svg
+[Pages-Badge]:           https://github.com/PradyumnaKrishna/Enigma-Protocol/actions/workflows/client_build.yml/badge.svg
 
-[Pages]:                https://protocol.onpy.in
+[Pages]:                 https://protocol.onpy.in
 
