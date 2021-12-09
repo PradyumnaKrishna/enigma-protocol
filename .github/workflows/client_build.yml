@@ -1,0 +1,65 @@
+name: Build and Release Client
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - client/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - client/**
+
+jobs:
+  release:
+    defaults:
+      run:
+        working-directory: client
+    runs-on: ubuntu-latest
+    env:
+      VUE_APP_APIURL: ${{ secrets.VUE_APP_APIURL }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Set outputs
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short ${{ github.event.pull_request.head.sha }})"
+      - name: Preview Pull Request
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./client/dist
+          destination_dir: preview/${{ steps.vars.outputs.sha_short }}
+          cname: protocol.onpy.in
+      - name: Release
+        if: ${{ github.event_name == 'push' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./client/dist
+          cname: protocol.onpy.in
+      - name: Publish
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: Client Github Pages Build
+          message: |
+            Preview avaiable to https://protocol.onpy.in/preview/${{ steps.vars.outputs.sha_short }}

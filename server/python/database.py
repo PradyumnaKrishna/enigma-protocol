@@ -1,3 +1,7 @@
+"""
+DATABASE QUERY FOR READ AND WRITE
+"""
+
 import sqlite3
 from sqlite3 import Error
 
@@ -13,6 +17,7 @@ class DataBase:
     """
     used to connect, write to and read from a local sqlite3 database
     """
+
     def __init__(self):
         """
         try to connect to file and create cursor
@@ -20,8 +25,8 @@ class DataBase:
         self.conn = None
         try:
             self.conn = sqlite3.connect(FILE)
-        except Error as e:
-            print(e)
+        except Error as exception:
+            print(exception)
 
         self.cursor = self.conn.cursor()
         self._create_table()
@@ -43,39 +48,39 @@ class DataBase:
         self.cursor.execute(query)
         self.conn.commit()
 
-    def get_publicKey(self, id):
+    def get_public_key(self, identity):
         """
-        Gets a publicKey of user by id
-        :param id: str
+        Gets a publicKey of user by identity
+        :param identity: str
         :return: publicKey
         """
         query = f"SELECT publicKey FROM {PLAYLIST_TABLE} WHERE ID = ?"
-        self.cursor.execute(query, (id,))
+        self.cursor.execute(query, (identity,))
         result = self.cursor.fetchall()
 
-        publicKey = result[0][0] if result else None
-        return publicKey
+        public_key = result[0][0] if result else None
+        return public_key
 
-    def update_last_activity(self, id):
+    def update_last_activity(self, identity):
         """
         updates the last_activity of a user
-        :param id: str
+        :param identity: str
         :return: None
         """
         query = f"UPDATE {PLAYLIST_TABLE} SET last_activity = ? WHERE ID = ?"
-        self.cursor.execute(query, (datetime.now(), id))
+        self.cursor.execute(query, (datetime.now(), identity))
         self.conn.commit()
 
-    def save_user(self, publicKey):
+    def save_user(self, public_key):
         """
-        saves the given publicKey in the table
-        :param publicKey: str
-        :return: id
+        saves the given public_key in the table
+        :param public_key: str
+        :return: identity
         """
-        id = secrets.token_hex(5)
+        identity = secrets.token_hex(5)
 
         query = f"INSERT INTO {PLAYLIST_TABLE} VALUES (?, ?, ?)"
-        self.cursor.execute(query, (id, publicKey, datetime.now()))
+        self.cursor.execute(query, (identity, public_key, datetime.now()))
         self.conn.commit()
 
-        return id
+        return identity

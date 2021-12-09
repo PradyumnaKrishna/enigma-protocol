@@ -1,3 +1,7 @@
+"""
+FLASK SOCKETIO SERVER
+"""
+
 import os
 import secrets
 
@@ -9,57 +13,57 @@ from database import DataBase
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = secrets.token_urlsafe(32)
+app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
 
 CORS(app)
 db = DataBase()
-socketio = SocketIO(app, cors_allowed_origins='*')
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 
-@app.route('/')
+@app.route("/")
 def home():
-    """ main homepage """
+    """main homepage"""
     return "ok", 200
 
 
-@app.route('/login/<publicKey>')
-def new(publicKey):
+@app.route("/login/<public_key>")
+def new(public_key):
     """
-    create user and store publicKey
-    :param: publicKey
+    create user and store public_key
+    :param: public_key
     :return: user
     """
-    id = db.save_user(publicKey)
-    return jsonify({'user': id}), 200
+    identity = db.save_user(public_key)
+    return jsonify({"user": identity}), 200
 
 
-@app.route('/connect/<ID>')
-def connect(ID):
+@app.route("/connect/<identity>")
+def connect(identity):
     """
     connect to other user
-    :param: id
+    :param: identity
     :return: status, publicKey
     """
-    publicKey = db.get_publicKey(ID)
-    if publicKey:
-        return jsonify({'status': True, 'to': ID, 'publicKey': publicKey}), 200
-    return jsonify({'status': False}), 404
+    public_key = db.get_public_key(identity)
+    if public_key:
+        return jsonify({"status": True, "to": identity, "publicKey": public_key}), 200
+    return jsonify({"status": False}), 404
 
 
-@socketio.on('send_message')
+@socketio.on("send_message")
 def handle_messages(data):
     """
     sends message in perticular room
     """
-    socketio.emit('receive_message', data, to=data['to'])
+    socketio.emit("receive_message", data, to=data["to"])
 
 
-@socketio.on('join_room')
+@socketio.on("join_room")
 def handle_join_room_event(data):
     """
     user join room
     """
-    room = data.pop('user')
+    room = data.pop("user")
 
     db.update_last_activity(room)
 
@@ -67,6 +71,6 @@ def handle_join_room_event(data):
     socketio.emit("room_announcements", "Join Room Callback", to=room)
 
 
-if __name__ == '__main__':
-    PORT = os.getenv('PORT', 5000)
-    socketio.run(app, host='0.0.0.0', port=PORT)
+if __name__ == "__main__":
+    PORT = os.getenv("PORT", "5000")
+    socketio.run(app, host="0.0.0.0", port=PORT)

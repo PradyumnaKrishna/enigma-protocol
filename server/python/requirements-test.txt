@@ -1,0 +1,9 @@
+black==21.12b0
+eventlet==0.31.0
+Flask==2.0.0
+Flask-Cors==3.0.10
+Flask-SocketIO==4.3.1
+pytest==6.2.5
+pylint==2.12.2
+python-engineio==3.13.2
+python-socketio==4.6.0

@@ -147,7 +147,7 @@ export default {
 
     login: async function () {
       // login function used to restore session using cookie
-      const publicKey = this.$cookies.get("publicKey");
+      const publicKey = this.keypair.publicKey;
       if (this.$cookies.isKey("user")) {
         const user = this.$cookies.get("user");
         const response = await fetch(`${URL}/connect/${user}`);
@@ -253,20 +253,21 @@ export default {
     load: async function () {
       this.loading = true;
 
-      if (this.$cookies.isKey("privateKey")) {
-        // loads RSA keypair if stored in cookies
-        this.privateKey = Buffer.from(this.$cookies.get("privateKey"), "base64").toString();
-        this.privateKey = forge.pki.privateKeyFromPem(this.privateKey);
-      } else {
+      const keypair = localStorage.getItem("keypair");
+      if (keypair === null) {
         // generates RSA keypair
         await forge.pki.rsa.generateKeyPair({ bits: 2048, workers: 2 }, (err, keypair) => {
-            this.publicKey = forge.pki.publicKeyToPem(keypair.publicKey);
-            this.$cookies.set("publicKey", Buffer.from(this.publicKey).toString("base64"));
-
-            this.privateKey = keypair.privateKey;
-            const key = forge.pki.privateKeyToPem(keypair.privateKey);
-            this.$cookies.set("privateKey", Buffer.from(key).toString("base64"));
-        });
+            this.keypair = {
+              "publicKey": Buffer.from(forge.pki.publicKeyToPem(keypair.publicKey)).toString("base64"),
+              "privateKey": Buffer.from(forge.pki.privateKeyToPem(keypair.privateKey)).toString("base64"),
+            };
+            localStorage.setItem("keypair", JSON.stringify(this.keypair));
+            this.privateKey =  keypair.privateKey;
+        })
+      } else {
+        this.keypair = JSON.parse(keypair);
+        this.privateKey = Buffer.from(this.keypair.privateKey, "base64").toString();
+        this.privateKey = forge.pki.privateKeyFromPem(this.privateKey);
       }
 
       // restore session

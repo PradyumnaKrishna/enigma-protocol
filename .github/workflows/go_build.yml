@@ -1,11 +1,16 @@
-name: Docker Build
+name: Go Server Build
 
 on:
   push:
     branches:
       - main
     paths:
-      - server/**
+      - server/go/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - server/go/**
 
 env:
   REGISTRY: ghcr.io
@@ -38,10 +43,3 @@ jobs:
           context: server/go
           push: true
           tags: ${{ env.IMAGE_NAME }}/go-server:latest,${{ env.IMAGE_NAME }}/go-server:${{ env.DATE }}
-
-      - name: Build and Push Python Server
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: server/python
-          push: true
-          tags: ${{ env.IMAGE_NAME }}/python-server:latest,${{ env.IMAGE_NAME }}/python-server:${{ env.DATE }}
