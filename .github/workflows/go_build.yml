@@ -6,11 +6,6 @@ on:
       - main
     paths:
       - server/go/**
-  pull_request:
-    branches:
-      - main
-    paths:
-      - server/go/**
 
 env:
   REGISTRY: ghcr.io

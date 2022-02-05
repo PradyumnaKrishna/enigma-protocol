@@ -1,12 +1,7 @@
-name: Client Build
+name: Clean Build
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - client/**
-  pull_request:
     branches:
       - main
     paths:
@@ -38,29 +33,10 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
-      - name: Set outputs
-        id: vars
-        run: echo "::set-output name=sha_short::$(git rev-parse --short ${{ github.event.pull_request.head.sha }})"
-      - name: Preview Pull Request
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./client/dist
-          destination_dir: preview/${{ steps.vars.outputs.sha_short }}
-          cname: protocol.onpy.in
       - name: Release
-        if: ${{ github.event_name == 'push' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./client/dist
           cname: protocol.onpy.in
-          keep_files: true
-      - name: Publish
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: Client Github Pages Build
-          message: |
-            Preview avaiable to https://protocol.onpy.in/preview/${{ steps.vars.outputs.sha_short }}
+          force_orphan: true
