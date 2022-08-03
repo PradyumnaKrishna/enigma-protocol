@@ -7,7 +7,7 @@ Hello Friends, I built an end to end encrypted messenger using Flask, SocketIO, 
 
 ## Working
 
-The Chat is encrypted using RSA encrytion that is a public key encryption or you can say asymmetric encryption. RSA gives two keys, public key and private key, public key is used to encrypt messages while private key is used to decrypt them.
+The Chat is encrypted using RSA encryption that is a public key encryption or you can say asymmetric encryption. RSA gives two keys, public key and private key, public key is used to encrypt messages while private key is used to decrypt them.
 
 I have used [Diffie–Hellman key exchange](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) to exchange the public keys of the users. These keys are used by user A to encrypt messages and send them to another user B and user B can decrypt them using his private key.
 
