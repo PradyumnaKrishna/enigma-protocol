@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	socketio "github.com/googollee/go-socket.io"
 	"github.com/googollee/go-socket.io/engineio"
@@ -49,6 +50,7 @@ type Message struct {
 	User string `json:"user"`
 	Text string `json:"message,omitempty"`
 	To string `json:"to,omitempty"`
+	Timstamp string `json:"timestamp,omitempty"`
 }
 
 
@@ -120,6 +122,7 @@ func InitializeSockets() {
 
 	server.OnEvent("/", "send_message", func(s socketio.Conn, m Message) {
 		log.Println(m.To)
+		m.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 		server.BroadcastToRoom("/", m.To, "receive_message", m)
 	})
 }

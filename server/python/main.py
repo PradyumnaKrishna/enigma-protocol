@@ -2,6 +2,7 @@
 FLASK SOCKETIO SERVER
 """
 
+from datetime import datetime
 import os
 import secrets
 
@@ -56,6 +57,14 @@ def handle_messages(data):
     sends message in perticular room
     """
     socketio.emit("receive_message", data, to=data["to"])
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    message_with_timestamp = {
+        "timestamp": timestamp,
+        "from": data["from"],
+        "to": data["to"],
+        "message": data["message"]
+    }
+    socketio.emit("receive_message", message_with_timestamp, to=data["to"])
 
 
 @socketio.on("join_room")
@@ -70,6 +79,23 @@ def handle_join_room_event(data):
     join_room(room)
     socketio.emit("room_announcements", "Join Room Callback", to=room)
 
+@socketio.on("get_user_cards")
+def handle_get_user_cards():
+    """
+    get user cards with timestamps
+    """
+    users = db.get_user_cards()
+    user_cards_with_timestamps = []
+
+    for user in users:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        user_card_with_timestamp = {
+            "timestamp": timestamp,
+            "user": user
+        }
+        user_cards_with_timestamps.append(user_card_with_timestamp)
+
+    socketio.emit("receive_user_cards", user_cards_with_timestamps)
 
 if __name__ == "__main__":
     PORT = os.getenv("PORT", "5000")
