@@ -3,8 +3,8 @@
     <h1>Enigma Protocol</h1>
     <br/>
     <p>
-      This Website is used for anonymous chatting with end to end encryption support.
-      I can't decrypt those message because they are encrypted using client side of
+      This Website is used for anonymous chatting with end-to-end encryption support.
+      I can't decrypt those messages because they are encrypted using the client side of
       the web application.
     </p>
     <br/>
