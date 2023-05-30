@@ -1,20 +1,22 @@
 ---
-name: Feature request
+name: "⭐ Feature request"
 about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
+title: "[Feature]: "
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+<!--
+Example how to mark a checkbox:-
+- [x] My code follows the code style of this project.
+-->
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+- [ ] Would you like to take up this task? 
+- [ ] Are you from GSSoC'23? 
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+|   ✨  |   Feature request                |
+|-----|---------------------------------|
+| **Is your feature request related to a problem?** | Kindly provide an explanation of the problem that your feature aims to resolve. |
+| **Describe the solution you'd like** | Please present a concise and precise description of the solution you envision. |
+| **Describe alternatives you've considered** | Elaborate on any alternative solutions or features that you have already evaluated as potential approaches. |
+| **Additional context** | Include any supplementary information, contextual details, relevant screenshots, or supporting materials that can aid in better understanding and supporting your feature request. |
