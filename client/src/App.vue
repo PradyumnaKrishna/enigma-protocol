@@ -36,14 +36,30 @@ p {
 
 #nav {
   padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #ECECEC;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+  border-top: 1px solid #ECECEC;
+  border-bottom: 1px solid #ECECEC;
 }
+
+#nav a {
+  font-weight: bold;
+  color: #ECECEC;
+  margin: 0 10px;
+  padding: 5px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+#nav a.router-link-exact-active {
+  color: #42b983;
+  background-color: #ECECEC;
+  border-color: #42b983;
+}
+
+#nav a:hover {
+  color: #42b983;
+  background-color: #ECECEC;
+  border-color: #42b983;
+}
+
 </style>
