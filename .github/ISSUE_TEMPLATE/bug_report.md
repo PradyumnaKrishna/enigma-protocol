@@ -1,38 +1,32 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
+name: "\U0001F41E Bug report"
+about: Short description about the issue.
+title: "[BUG]: "
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+<!--
+Example how to mark a checkbox:-
+- [x] My code follows the code style of this project.
+-->
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+- [ ] Would you like to take up this task? 
+- [ ] Are you from GSSoC'23? 
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+---
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+|  🐞   |   Bug report                         |
+|-----|--------------------------------------|
+| **Describe the bug** | Please provide a clear and concise description of the issue encountered |
+| **Location of the bug** | If known, please specify the file location where the bug was identified |
+| **Expected behavior** | What should happen instead of the observed bug? |
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+## Screenshots (if any)
+---
+|     Screenshot 1 (if any)       |       Screenshot 2 (if any)     |
+| :-----------------: | :------------------: |
+| ![Screenshot 1](link) | ![Screenshot 2](link) |
 
-**Additional context**
-Add any other context about the problem here.
+
+Please provide any necessary screenshots to illustrate.
