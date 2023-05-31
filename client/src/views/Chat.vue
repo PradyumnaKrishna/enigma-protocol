@@ -125,9 +125,6 @@ export default {
   components: {
     ClipLoader,
   },
-  props: {
-    room: String,
-  },
   data() {
     return {
       loading: true,
@@ -136,6 +133,7 @@ export default {
       users: [],
       user: null,
       to: null,
+      room: null,
     };
   },
   methods: {
