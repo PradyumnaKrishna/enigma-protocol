@@ -217,18 +217,12 @@ export default {
     },
 
     send: async function () {
-      // create random symmetric key and iv, and uses it to encrypt the large message.
-      const key = forge.random.getBytesSync(16);
-      const { encrypted, iv } = encryptMessage(this.message, key);
-      // encrypts the symmetric key using the recipient’s public key.
-      const encryptedKey = this.publicKey.encrypt(key);
+      const message = encryptMessage(this.message, this.publicKey);
 
       socket.emit("send_message", {
         user: this.user,
-        message: encrypted,
-        iv: iv,
         to: this.to,
-        key: encryptedKey,
+        message: message,
       });
 
       await this.messages.push({ user: "self", message: this.message });
@@ -306,12 +300,7 @@ export default {
   mounted() {
     // socket to recieve messages
     socket.on("receive_message", (data) => {
-      const encryptedKey = data.key;
-
-      //decrypts the symmetric key using their private key.
-      const key = this.privateKey.decrypt(encryptedKey);
-      const iv = data.iv;
-      const message = decryptMessage(data.message, key, iv);
+      const message = decryptMessage(data.message, this.privateKey);
 
       let temp = [];
       if (localStorage.getItem(data.user)) {
