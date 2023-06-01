@@ -113,6 +113,7 @@
 <script>
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
+import { encryptMessage, decryptMessage } from "../utils/crypto";
 
 URL = process.env.VUE_APP_APIURL;
 
@@ -216,12 +217,18 @@ export default {
     },
 
     send: async function () {
-      // send message after encrypting and append to array
-      const message = this.publicKey.encrypt(this.message);
+      // create random symmetric key and iv, and uses it to encrypt the large message.
+      const key = forge.random.getBytesSync(16);
+      const { encrypted, iv } = encryptMessage(this.message, key);
+      // encrypts the symmetric key using the recipient’s public key.
+      const encryptedKey = this.publicKey.encrypt(key);
+
       socket.emit("send_message", {
         user: this.user,
-        message: message,
+        message: encrypted,
+        iv: iv,
         to: this.to,
+        key: encryptedKey,
       });
 
       await this.messages.push({ user: "self", message: this.message });
@@ -254,17 +261,27 @@ export default {
       const keypair = localStorage.getItem("keypair");
       if (keypair === null) {
         // generates RSA keypair
-        await forge.pki.rsa.generateKeyPair({ bits: 2048, workers: 2 }, (err, keypair) => {
+        await forge.pki.rsa.generateKeyPair(
+          { bits: 2048, workers: 2 },
+          (err, keypair) => {
             this.keypair = {
-              "publicKey": Buffer.from(forge.pki.publicKeyToPem(keypair.publicKey)).toString("base64"),
-              "privateKey": Buffer.from(forge.pki.privateKeyToPem(keypair.privateKey)).toString("base64"),
+              publicKey: Buffer.from(
+                forge.pki.publicKeyToPem(keypair.publicKey)
+              ).toString("base64"),
+              privateKey: Buffer.from(
+                forge.pki.privateKeyToPem(keypair.privateKey)
+              ).toString("base64"),
             };
             localStorage.setItem("keypair", JSON.stringify(this.keypair));
-            this.privateKey =  keypair.privateKey;
-        })
+            this.privateKey = keypair.privateKey;
+          }
+        );
       } else {
         this.keypair = JSON.parse(keypair);
-        this.privateKey = Buffer.from(this.keypair.privateKey, "base64").toString();
+        this.privateKey = Buffer.from(
+          this.keypair.privateKey,
+          "base64"
+        ).toString();
         this.privateKey = forge.pki.privateKeyFromPem(this.privateKey);
       }
 
@@ -289,7 +306,12 @@ export default {
   mounted() {
     // socket to recieve messages
     socket.on("receive_message", (data) => {
-      const message = this.privateKey.decrypt(data.message);
+      const encryptedKey = data.key;
+
+      //decrypts the symmetric key using their private key.
+      const key = this.privateKey.decrypt(encryptedKey);
+      const iv = data.iv;
+      const message = decryptMessage(data.message, key, iv);
 
       let temp = [];
       if (localStorage.getItem(data.user)) {
