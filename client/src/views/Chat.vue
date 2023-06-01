@@ -113,6 +113,7 @@
 <script>
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
+import { encryptMessage, decryptMessage } from "../utils/crypto";
 
 URL = process.env.VUE_APP_APIURL;
 
@@ -218,18 +219,10 @@ export default {
     send: async function () {
       // create random symmetric key and iv, and uses it to encrypt the large message.
       const key = forge.random.getBytesSync(16);
-      const iv = forge.random.getBytesSync(16);
-      // encrypts the message using the symmetric key and iv.
-      const cipher = forge.cipher.createCipher("AES-CBC", key);
-      cipher.start({ iv: iv });
-      cipher.update(forge.util.createBuffer(this.message));
-      cipher.finish();
-      const encrypted = cipher.output;
-
+      const { encrypted, iv } = encryptMessage(this.message, key);
       // encrypts the symmetric key using the recipient’s public key.
       const encryptedKey = this.publicKey.encrypt(key);
 
-      console.log(this.user, this.to, encrypted, encryptedKey);
       socket.emit("send_message", {
         user: this.user,
         message: encrypted,
@@ -318,14 +311,7 @@ export default {
       //decrypts the symmetric key using their private key.
       const key = this.privateKey.decrypt(encryptedKey);
       const iv = data.iv;
-      //decrypts the message using the symmetric key.
-      const decipher = forge.cipher.createDecipher("AES-CBC", key);
-      decipher.start({ iv: iv });
-      decipher.update(data.message);
-      decipher.finish();
-
-      //original message.
-      const message = decipher.output.toString();
+      const message = decryptMessage(data.message, key, iv);
 
       let temp = [];
       if (localStorage.getItem(data.user)) {
