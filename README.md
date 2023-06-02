@@ -56,7 +56,7 @@ npm ci
 npm run serve
 ```
 
-**NOTE**: To run the vue.js app you need to confiure an env variables, open `.env.sample` to see an sample environment file.
+**NOTE**: To run the vue.js app you need to configure an env variable, open `.env.sample` to see a sample environment file.
 
 Supported Node.js Version
 - Current LTS version (14) or newer
