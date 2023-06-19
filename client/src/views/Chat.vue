@@ -13,7 +13,7 @@
                 <div class="input-group">
                   <input
                     type="text"
-                    class="form-control etrans"
+                    class="form-control etrans text-secondary"
                     v-model="room"
                     placeholder="Other User's ID"
                   />
