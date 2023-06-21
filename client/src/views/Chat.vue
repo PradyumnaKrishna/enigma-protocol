@@ -13,8 +13,9 @@
                 <div class="input-group">
                   <input
                     type="text"
-                    class="form-control etrans text-secondary"
+                    class="form-control etrans text-light"
                     v-model="room"
+                    style="input::placeholder {color: gray}"
                     placeholder="Other User's ID"
                   />
                   <div class="input-group-prepend">
