@@ -12,6 +12,7 @@
               <form v-on:submit.prevent="onSubmit" class="form">
                 <div class="input-group">
                   <input
+                    style="background-color: white"
                     type="text"
                     class="form-control etrans"
                     v-model="room"
