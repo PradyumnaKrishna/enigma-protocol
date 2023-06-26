@@ -5,7 +5,7 @@
       <div class="row justify-content-center h-75 w-100">
         <div class="col-md-4 col-xl-3 chat">
           <div class="card mb-sm-3 mb-md-0 h-100 contacts_card">
-            <div class="card-header">
+            <div class="card-header text-light">
               <p>
                 <strong>{{ user }}</strong>
               </p>
@@ -15,6 +15,7 @@
                     type="text"
                     class="form-control etrans"
                     v-model="room"
+                    style="input::placeholder {color: gray}"
                     placeholder="Other User's ID"
                   />
                   <div class="input-group-prepend">
@@ -363,6 +364,10 @@ input:focus {
   background-color: rgba(255, 255, 255, 0.05);
   color: #f9f6f7;
   outline: 0;
+}
+
+input::placeholder {
+  color: gray
 }
 
 .btn.focus,
