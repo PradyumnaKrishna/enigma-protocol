@@ -7,7 +7,7 @@
           <div class="card mb-sm-3 mb-md-0 h-100 contacts_card">
             <div class="card-header text-light">
               <p>
-                <strong>{{ user }}</strong>
+                <strong id="userId">{{ user }}</strong>
               </p>
               <form v-on:submit.prevent="onSubmit" class="form">
                 <div class="input-group">
@@ -325,6 +325,20 @@ export default {
     });
   },
 };
+
+  // Copy user id on click 
+const userIdText = document.getElementById("userId");
+
+userIdText.onclick = function() {
+  document.execCommand("copy");
+}
+
+userIdText.addEventListener("copy", function(event) {
+  event.preventDefault();
+  if (event.clipboardData) {
+    event.clipboardData.setData("text/plain", userIdText.textContent);
+  }
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
