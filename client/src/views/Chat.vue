@@ -7,7 +7,7 @@
           <div class="card mb-sm-3 mb-md-0 h-100 contacts_card">
             <div class="card-header text-light">
               <p>
-                <strong>{{ user }}</strong>
+                <strong @click="copy(user)">{{ user }}</strong>
               </p>
               <form v-on:submit.prevent="onSubmit" class="form">
                 <div class="input-group">
