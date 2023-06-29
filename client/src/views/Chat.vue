@@ -15,7 +15,6 @@
                     type="text"
                     class="form-control etrans"
                     v-model="room"
-                    style="input::placeholder {color: gray}"
                     placeholder="Other User's ID"
                   />
                   <div class="input-group-prepend">
@@ -367,7 +366,7 @@ input:focus {
 }
 
 input::placeholder {
-  color: gray
+  color: gray;
 }
 
 .btn.focus,
