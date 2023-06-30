@@ -114,6 +114,7 @@
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
 import { encryptMessage, decryptMessage } from "../utils/crypto";
+import { Buffer } from "buffer";
 
 URL = process.env.VUE_APP_APIURL;
 
