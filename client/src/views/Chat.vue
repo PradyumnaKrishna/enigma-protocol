@@ -329,10 +329,9 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 *{
-  font-family: "Roboto","Poppins", "Helvetica", sans-serif;
+  font-family: "Roboto", "Helvetica", sans-serif;
 }
 
 .inputBox:hover{
