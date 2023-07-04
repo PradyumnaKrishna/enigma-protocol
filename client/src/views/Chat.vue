@@ -6,8 +6,8 @@
         <div class="col-md-4 col-xl-3 chat">
           <div class="card mb-sm-3 mb-md-0 h-100 contacts_card">
             <div class="card-header text-light">
-              <p>
-                <strong @click="copy(user)">{{ user }}</strong>
+              <p id="userId" class="inputBox">
+                User ID : <strong @click="copy(user)" title="click to copy">{{ user }}</strong>
               </p>
               <form v-on:submit.prevent="onSubmit" class="form">
                 <div class="input-group">
@@ -20,7 +20,6 @@
                   <div class="input-group-prepend">
                     <button
                       class="btn btn-dark"
-                      style="color: #78e08f"
                       @click="join_room(room)"
                     >
                       <strong>Add</strong>
@@ -50,7 +49,7 @@
           </div>
         </div>
         <div class="col-md-8 col-xl-6 chat h-100">
-          <div class="card">
+          <div class="card" >
             <div class="card-header">
               <div class="d-flex">
                 <p class="text-b">
@@ -329,6 +328,16 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+*{
+  font-family: "Roboto", "Helvetica", sans-serif;
+}
+
+.inputBox:hover{
+  cursor: pointer;
+}
+
 h3 {
   margin: 40px 0 0;
 }
@@ -370,10 +379,23 @@ input::placeholder {
   color: gray;
 }
 
+.inputBox{
+  margin-top: .4rem;
+  border-radius: 10px;
+  background-color: #23262a;
+  padding: .1rem 0;
+  opacity: .7;
+}
 .btn.focus,
 .btn:focus {
   outline: 0;
   box-shadow: none !important;
+}
+
+.chat{
+  border: 1px solid rgb(75, 70, 71) !important;
+  padding: 0 !important;
+  border-radius: 10px;
 }
 
 .card {
