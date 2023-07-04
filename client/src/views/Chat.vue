@@ -6,7 +6,7 @@
         <div class="col-md-4 col-xl-3 chat">
           <div class="card mb-sm-3 mb-md-0 h-100 contacts_card">
             <div class="card-header text-light">
-              <p id="userId">
+              <p id="userId" class="inputBox">
                 User ID : <strong @click="copy(user)" title="click to copy">{{ user }}</strong>
               </p>
               <form v-on:submit.prevent="onSubmit" class="form">
@@ -335,7 +335,7 @@ export default {
   font-family: "Poppins", "Helvetica", sans-serif;
 }
 
-strong:hover{
+#userId:hover{
   cursor: pointer;
 }
 
@@ -380,7 +380,7 @@ input::placeholder {
   color: gray;
 }
 
-#userId{
+.inputBox{
   margin-top: .4rem;
   border-radius: 10px;
   background-color: #23262a;
