@@ -5,7 +5,7 @@ FLASK SOCKETIO SERVER
 import os
 import secrets
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_socketio import SocketIO, join_room
 from flask_cors import CORS
 
@@ -69,6 +69,10 @@ def handle_join_room_event(data):
 
     join_room(room)
     socketio.emit("room_announcements", "Join Room Callback", to=room)
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404error.html'), 404
 
 
 if __name__ == "__main__":
