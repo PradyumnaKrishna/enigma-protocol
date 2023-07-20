@@ -9,11 +9,16 @@
               <p id="userId" class="inputBox">
                 User ID : <strong @click="copy(user)" title="click to copy">{{ user }}</strong>
               </p>
+              <div v-if="toastmsg" class="toast-error"
+               :style="{
+                backgroundColor: toastmsg.includes(`Wrong`) ? '#d32f2f' : '#0288d1',}"
+                >{{toastmsg}}</div>
               <form v-on:submit.prevent="onSubmit" class="form">
                 <div class="input-group">
                   <input
                     type="text"
                     class="form-control etrans"
+                    required
                     v-model="room"
                     placeholder="Other User's ID"
                   />
@@ -121,6 +126,7 @@ const forge = require("node-forge");
 const fetch = require("node-fetch");
 const socket = io.connect(URL);
 
+
 export default {
   name: "Home",
   components: {
@@ -133,6 +139,7 @@ export default {
       message: "",
       users: [],
       user: null,
+      toastmsg: "",
       to: null,
       room: null,
     };
@@ -141,7 +148,11 @@ export default {
     copy: async function (text) {
       // finction to copy text to clipboard
       await navigator.clipboard.writeText(text);
-      alert("Text Copied");
+      this.toastmsg = "Text Copied";
+
+      setTimeout(() => {
+      this.toastmsg = "";
+      },2000)
     },
 
     login: async function () {
@@ -200,7 +211,11 @@ export default {
         this.rearrange(user);
         this.switchTo(user);
       } else {
-        alert("Wrong user");
+        this.toastmsg = "Wrong user";
+
+        setTimeout(() => {
+        this.toastmsg = "";
+        },2000)
       }
     },
 
@@ -248,6 +263,7 @@ export default {
       const parsed = JSON.stringify(this.users);
       localStorage.setItem("users", parsed);
     },
+    
 
     load: async function () {
       this.loading = true;
@@ -332,6 +348,46 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 *{
   font-family: "Roboto", "Helvetica", sans-serif;
+}
+
+/* Toast message */
+.toast-error {
+  visibility: visible; /* Hidden by default. Visible on click */
+  min-width: 250px; /* Set a default minimum width */
+  height: fit-content;
+  margin-left: -125px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 50%; /* Center the snackbar */
+  top: 30px; /* 30px from the bottom */
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the toast in and out */
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
 }
 
 .inputBox:hover{
