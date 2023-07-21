@@ -7,12 +7,12 @@
           <div class="card mb-sm-3 mb-md-0 h-100 contacts_card">
             <div class="card-header text-light">
               <p id="userId" class="inputBox">
-                User ID : <strong @click="copy(user)" title="click to copy">{{ user }}</strong>
+                User ID :
+                <strong @click="copy(user)" title="click to copy">{{
+                  user
+                }}</strong>
               </p>
-              <div v-if="toastmsg" class="toast-error"
-               :style="{
-                backgroundColor: toastmsg.includes(`Wrong`) ? '#d32f2f' : '#0288d1',}"
-                >{{toastmsg}}</div>
+              <ToastMessage :toastmsg="toastmsg" :toastType="toastType" />
               <form v-on:submit.prevent="onSubmit" class="form">
                 <div class="input-group">
                   <input
@@ -23,10 +23,7 @@
                     placeholder="Other User's ID"
                   />
                   <div class="input-group-prepend">
-                    <button
-                      class="btn btn-dark"
-                      @click="join_room(room)"
-                    >
+                    <button class="btn btn-dark" @click="join_room(room)">
                       <strong>Add</strong>
                     </button>
                   </div>
@@ -54,7 +51,7 @@
           </div>
         </div>
         <div class="col-md-8 col-xl-6 chat h-100">
-          <div class="card" >
+          <div class="card">
             <div class="card-header">
               <div class="d-flex">
                 <p class="text-b">
@@ -119,6 +116,7 @@ import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
 import { encryptMessage, decryptMessage } from "../utils/crypto";
 import { Buffer } from "buffer";
+import ToastMessage from "../components/ToastMessage.vue";
 
 URL = process.env.VUE_APP_APIURL;
 
@@ -126,11 +124,11 @@ const forge = require("node-forge");
 const fetch = require("node-fetch");
 const socket = io.connect(URL);
 
-
 export default {
   name: "Home",
   components: {
     ClipLoader,
+    ToastMessage,
   },
   data() {
     return {
@@ -140,6 +138,7 @@ export default {
       users: [],
       user: null,
       toastmsg: "",
+      toastType: "",
       to: null,
       room: null,
     };
@@ -149,10 +148,12 @@ export default {
       // finction to copy text to clipboard
       await navigator.clipboard.writeText(text);
       this.toastmsg = "Text Copied";
+      this.toastType = "success";
 
       setTimeout(() => {
-      this.toastmsg = "";
-      },2000)
+        this.toastmsg = "";
+        this.toastType = "";
+      }, 2000);
     },
 
     login: async function () {
@@ -212,10 +213,12 @@ export default {
         this.switchTo(user);
       } else {
         this.toastmsg = "Wrong user";
+        this.toastType = "error";
 
         setTimeout(() => {
-        this.toastmsg = "";
-        },2000)
+          this.toastmsg = "";
+          this.toastType = "";
+        }, 2000);
       }
     },
 
@@ -263,7 +266,6 @@ export default {
       const parsed = JSON.stringify(this.users);
       localStorage.setItem("users", parsed);
     },
-    
 
     load: async function () {
       this.loading = true;
@@ -344,53 +346,12 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-*{
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+* {
   font-family: "Roboto", "Helvetica", sans-serif;
 }
 
-/* Toast message */
-.toast-error {
-  visibility: visible; /* Hidden by default. Visible on click */
-  min-width: 250px; /* Set a default minimum width */
-  height: fit-content;
-  margin-left: -125px; /* Divide value of min-width by 2 */
-  background-color: #333; /* Black background color */
-  color: #fff; /* White text color */
-  text-align: center; /* Centered text */
-  border-radius: 2px; /* Rounded borders */
-  padding: 16px; /* Padding */
-  position: fixed; /* Sit on top of the screen */
-  z-index: 1; /* Add a z-index if needed */
-  left: 50%; /* Center the snackbar */
-  top: 30px; /* 30px from the bottom */
-  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  animation: fadein 0.5s, fadeout 0.5s 2.5s;
-}
-
-/* Animations to fade the toast in and out */
-@-webkit-keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@-webkit-keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
-}
-
-@keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
-}
-
-.inputBox:hover{
+.inputBox:hover {
   cursor: pointer;
 }
 
@@ -435,12 +396,12 @@ input::placeholder {
   color: gray;
 }
 
-.inputBox{
-  margin-top: .4rem;
+.inputBox {
+  margin-top: 0.4rem;
   border-radius: 10px;
   background-color: #23262a;
-  padding: .1rem 0;
-  opacity: .7;
+  padding: 0.1rem 0;
+  opacity: 0.7;
 }
 .btn.focus,
 .btn:focus {
@@ -448,7 +409,7 @@ input::placeholder {
   box-shadow: none !important;
 }
 
-.chat{
+.chat {
   border: 1px solid rgb(75, 70, 71) !important;
   padding: 0 !important;
   border-radius: 10px;
