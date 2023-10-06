@@ -37,6 +37,10 @@ export default {
   color: #f9f6f7;
 }
 
+.contact_body:hover {
+    background-color: rgba(0, 0, 0, 0.3); /* or any other noticeable color/effect */
+    cursor: pointer;
+}
 .etrans {
   -webkit-transition: all 0.2s ease-out;
   -moz-transition: all 0.2s ease-out;
