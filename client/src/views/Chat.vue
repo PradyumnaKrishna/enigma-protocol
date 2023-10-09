@@ -31,21 +31,7 @@
               </form>
             </div>
             <div class="card-body contacts_body">
-              <div class="contacts">
-                <button
-                  class="contact_body etrans"
-                  v-for="contact in users"
-                  :key="contact"
-                  :style="
-                    contact === to
-                      ? { 'background-color': 'rgba(255,255,255,0.1)' }
-                      : null
-                  "
-                  @click="switchTo(contact)"
-                >
-                  {{ contact }}
-                </button>
-              </div>
+              <ChatListHeader :users="users" :activeUser="to" @switch="switchTo" />
             </div>
             <div class="card-footer"></div>
           </div>
@@ -117,6 +103,7 @@ import ClipLoader from "../assets/ClipLoader";
 import { encryptMessage, decryptMessage } from "../utils/crypto";
 import { Buffer } from "buffer";
 import ToastMessage from "../components/ToastMessage.vue";
+import ChatListHeader from "../components/ChatListHeader.vue";
 
 URL = process.env.VUE_APP_APIURL;
 
@@ -129,6 +116,7 @@ export default {
   components: {
     ClipLoader,
     ToastMessage,
+    ChatListHeader
   },
   data() {
     return {
