@@ -10,11 +10,10 @@
                 :user="user" 
                 :toastmsg="toastmsg" 
                 :toastType="toastType" 
-                @copyUser="copy" 
+                @requestCopy="copy" 
                 @joinRoom="join_room" 
                 @showToast="showToastMethod" 
               />
-
             </div>
             <div class="card-body contacts_body">
               <ChatListHeader :users="users" :activeUser="to" @switch="switchTo" />

@@ -42,21 +42,10 @@ export default {
     };
   },
   methods: {
-    copy(user) {
-  // Use the Clipboard API to copy the user ID to the clipboard
-  navigator.clipboard
-    .writeText(user)
-    .then(() => {
-      // If successful, emit a success toast message
-      this.$emit("showToast", "Copied to clipboard!", "success");
-      this.$emit("copyUser", user); // Emit the copyUser event
-      console.log('Emitting copyUser event');
-    })
-    .catch(() => {
-      // If failed, emit an error toast message
-      this.$emit("showToast", "Failed to copy!", "error");
-    });
-},
+    copy(userId) {
+    // Emit the event to parent component to handle the copy action
+    this.$emit('requestCopy', userId);
+  },
     joinRoom() {
       // Emit the joinRoom event with the room ID
       this.$emit("joinRoom", this.room);
