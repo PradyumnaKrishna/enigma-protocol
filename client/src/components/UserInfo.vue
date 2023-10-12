@@ -9,7 +9,6 @@
         >{{ user }}</strong
       >
     </p>
-    <ToastMessage :toastmsg="toastmsg" :toastType="toastType" />
     <form v-on:submit.prevent="onSubmit" class="form">
       <div class="input-group">
         <input
@@ -30,12 +29,8 @@
 </template>
 
 <script>
-import ToastMessage from "../components/ToastMessage.vue";
 export default {
   name: "UserInfo",
-  components: {
-    ToastMessage,
-  },
   props: {
     user: String,
     toastmsg: String,

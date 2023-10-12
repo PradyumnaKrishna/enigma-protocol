@@ -6,6 +6,7 @@
         <div class="col-md-4 col-xl-3 chat">
           <div class="card mb-sm-3 mb-md-0 h-100 contacts_card">
             <div class="card-header text-light">
+              <ToastMessage :toastmsg="toastmsg" :toastType="toastType" />
               <UserInfo 
                 :user="user" 
                 :toastmsg="toastmsg" 
@@ -83,6 +84,7 @@
 </template>
 
 <script>
+import ToastMessage from "../components/ToastMessage.vue";
 import UserInfo from "../components/UserInfo.vue";
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
@@ -101,7 +103,8 @@ export default {
   components: {
     UserInfo,
     ClipLoader,
-    ChatListHeader
+    ChatListHeader,
+    ToastMessage
   },
   data() {
     return {
@@ -204,7 +207,6 @@ export default {
       this.to = id;
       await this.retrieve(id);
       const publicKey = this.$cookies.get(this.to);
-      console.log('publicKey:', publicKey);
       this[this.to] = Buffer.from(publicKey, "base64").toString();
       this.publicKey = forge.pki.publicKeyFromPem(this[this.to]);
 
