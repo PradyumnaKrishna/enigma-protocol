@@ -18,12 +18,12 @@
 
 <script>
 export default {
-  name: "ChatCard",
-  props: {
-    userId: String,
-    isActive: Boolean
-  },
-}
+	name: "ChatCard",
+	props: {
+		userId: String,
+		isActive: Boolean
+	},
+};
 </script>
 
 <style scoped>

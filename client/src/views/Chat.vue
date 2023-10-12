@@ -112,223 +112,223 @@ const fetch = require("node-fetch");
 const socket = io.connect(URL);
 
 export default {
-  name: "Home",
-  components: {
-    ClipLoader,
-    ToastMessage,
-    ChatListHeader
-  },
-  data() {
-    return {
-      loading: true,
-      messages: [],
-      message: "",
-      users: [],
-      user: null,
-      toastmsg: "",
-      toastType: "",
-      to: null,
-      room: null,
-    };
-  },
-  methods: {
-    copy: async function (text) {
-      // finction to copy text to clipboard
-      await navigator.clipboard.writeText(text);
-      this.toastmsg = "Text Copied";
-      this.toastType = "success";
+	name: "Home",
+	components: {
+		ClipLoader,
+		ToastMessage,
+		ChatListHeader
+	},
+	data() {
+		return {
+			loading: true,
+			messages: [],
+			message: "",
+			users: [],
+			user: null,
+			toastmsg: "",
+			toastType: "",
+			to: null,
+			room: null,
+		};
+	},
+	methods: {
+		copy: async function (text) {
+			// finction to copy text to clipboard
+			await navigator.clipboard.writeText(text);
+			this.toastmsg = "Text Copied";
+			this.toastType = "success";
 
-      setTimeout(() => {
-        this.toastmsg = "";
-        this.toastType = "";
-      }, 2000);
-    },
+			setTimeout(() => {
+				this.toastmsg = "";
+				this.toastType = "";
+			}, 2000);
+		},
 
-    login: async function () {
-      // login function used to restore session using cookie
-      const publicKey = this.keypair.publicKey;
-      if (this.$cookies.isKey("user")) {
-        const user = this.$cookies.get("user");
-        const response = await fetch(`${URL}/connect/${user}`);
-        const json = await response.json();
+		login: async function () {
+			// login function used to restore session using cookie
+			const publicKey = this.keypair.publicKey;
+			if (this.$cookies.isKey("user")) {
+				const user = this.$cookies.get("user");
+				const response = await fetch(`${URL}/connect/${user}`);
+				const json = await response.json();
 
-        if (json.status) {
-          this.user = user;
-        } else {
-          const response = await fetch(`${URL}/login/${publicKey}`);
-          const json = await response.json();
-          this.user = json.user;
-          this.$cookies.set("user", this.user);
-        }
-      } else {
-        const response = await fetch(`${URL}/login/${publicKey}`);
-        const json = await response.json();
-        this.user = json.user;
-        this.$cookies.set("user", this.user);
-      }
-    },
+				if (json.status) {
+					this.user = user;
+				} else {
+					const response = await fetch(`${URL}/login/${publicKey}`);
+					const json = await response.json();
+					this.user = json.user;
+					this.$cookies.set("user", this.user);
+				}
+			} else {
+				const response = await fetch(`${URL}/login/${publicKey}`);
+				const json = await response.json();
+				this.user = json.user;
+				this.$cookies.set("user", this.user);
+			}
+		},
 
-    connect: async function (user) {
-      // function to set publicKey of user and return status
-      const response = await fetch(`${URL}/connect/${user}`);
-      const json = await response.json();
+		connect: async function (user) {
+			// function to set publicKey of user and return status
+			const response = await fetch(`${URL}/connect/${user}`);
+			const json = await response.json();
 
-      if (json.status) {
-        this.$cookies.set(user, json.publicKey);
-        return true;
-      }
-      return false;
-    },
+			if (json.status) {
+				this.$cookies.set(user, json.publicKey);
+				return true;
+			}
+			return false;
+		},
 
-    retrieve: function (value) {
-      // function retrieve messages from localStorage
-      if (localStorage.getItem(value)) {
-        try {
-          this.messages = JSON.parse(localStorage.getItem(value));
-        } catch (e) {
-          localStorage.removeItem(value);
-        }
-      } else {
-        this.messages = [];
-      }
-    },
+		retrieve: function (value) {
+			// function retrieve messages from localStorage
+			if (localStorage.getItem(value)) {
+				try {
+					this.messages = JSON.parse(localStorage.getItem(value));
+				} catch (e) {
+					localStorage.removeItem(value);
+				}
+			} else {
+				this.messages = [];
+			}
+		},
 
-    join_room: async function (user) {
-      // make connection with other user
-      const response = await this.connect(user);
-      if (user !== this.user && response) {
-        this.rearrange(user);
-        this.switchTo(user);
-      } else {
-        this.toastmsg = "Wrong user";
-        this.toastType = "error";
+		join_room: async function (user) {
+			// make connection with other user
+			const response = await this.connect(user);
+			if (user !== this.user && response) {
+				this.rearrange(user);
+				this.switchTo(user);
+			} else {
+				this.toastmsg = "Wrong user";
+				this.toastType = "error";
 
-        setTimeout(() => {
-          this.toastmsg = "";
-          this.toastType = "";
-        }, 2000);
-      }
-    },
+				setTimeout(() => {
+					this.toastmsg = "";
+					this.toastType = "";
+				}, 2000);
+			}
+		},
 
-    switchTo: async function (id) {
-      // switch to the user select
-      this.to = id;
-      await this.retrieve(id);
-      const publicKey = this.$cookies.get(this.to);
-      this[this.to] = Buffer.from(publicKey, "base64").toString();
-      this.publicKey = forge.pki.publicKeyFromPem(this[this.to]);
+		switchTo: async function (id) {
+			// switch to the user select
+			this.to = id;
+			await this.retrieve(id);
+			const publicKey = this.$cookies.get(this.to);
+			this[this.to] = Buffer.from(publicKey, "base64").toString();
+			this.publicKey = forge.pki.publicKeyFromPem(this[this.to]);
 
-      const container = this.$refs.messages;
-      container.scrollTop = container.scrollHeight;
-    },
+			const container = this.$refs.messages;
+			container.scrollTop = container.scrollHeight;
+		},
 
-    send: async function () {
-      const message = encryptMessage(this.message, this.publicKey);
+		send: async function () {
+			const message = encryptMessage(this.message, this.publicKey);
 
-      socket.emit("send_message", {
-        user: this.user,
-        to: this.to,
-        message: message,
-      });
+			socket.emit("send_message", {
+				user: this.user,
+				to: this.to,
+				message: message,
+			});
 
-      await this.messages.push({ user: "self", message: this.message });
-      this.setMessages(this.to, JSON.stringify(this.messages));
-      this.rearrange(this.to);
-      this.message = "";
-    },
+			await this.messages.push({ user: "self", message: this.message });
+			this.setMessages(this.to, JSON.stringify(this.messages));
+			this.rearrange(this.to);
+			this.message = "";
+		},
 
-    setMessages: function (user, parsed) {
-      // autoscroll to the bottom of container
-      localStorage.setItem(user, parsed);
+		setMessages: function (user, parsed) {
+			// autoscroll to the bottom of container
+			localStorage.setItem(user, parsed);
 
-      const container = this.$refs.messages;
-      container.scrollTop = container.scrollHeight;
-    },
+			const container = this.$refs.messages;
+			container.scrollTop = container.scrollHeight;
+		},
 
-    rearrange: function (user) {
-      // rearrange user
-      const users = this.users.slice();
-      users.unshift(user);
+		rearrange: function (user) {
+			// rearrange user
+			const users = this.users.slice();
+			users.unshift(user);
 
-      this.users = [...new Set(users)];
-      const parsed = JSON.stringify(this.users);
-      localStorage.setItem("users", parsed);
-    },
+			this.users = [...new Set(users)];
+			const parsed = JSON.stringify(this.users);
+			localStorage.setItem("users", parsed);
+		},
 
-    load: async function () {
-      this.loading = true;
+		load: async function () {
+			this.loading = true;
 
-      const keypair = localStorage.getItem("keypair");
-      if (keypair === null) {
-        // generates RSA keypair
-        await forge.pki.rsa.generateKeyPair(
-          { bits: 2048, workers: 2 },
-          (err, keypair) => {
-            this.keypair = {
-              publicKey: Buffer.from(
-                forge.pki.publicKeyToPem(keypair.publicKey)
-              ).toString("base64"),
-              privateKey: Buffer.from(
-                forge.pki.privateKeyToPem(keypair.privateKey)
-              ).toString("base64"),
-            };
-            localStorage.setItem("keypair", JSON.stringify(this.keypair));
-            this.privateKey = keypair.privateKey;
-          }
-        );
-      } else {
-        this.keypair = JSON.parse(keypair);
-        this.privateKey = Buffer.from(
-          this.keypair.privateKey,
-          "base64"
-        ).toString();
-        this.privateKey = forge.pki.privateKeyFromPem(this.privateKey);
-      }
+			const keypair = localStorage.getItem("keypair");
+			if (keypair === null) {
+				// generates RSA keypair
+				await forge.pki.rsa.generateKeyPair(
+					{ bits: 2048, workers: 2 },
+					(err, keypair) => {
+						this.keypair = {
+							publicKey: Buffer.from(
+								forge.pki.publicKeyToPem(keypair.publicKey)
+							).toString("base64"),
+							privateKey: Buffer.from(
+								forge.pki.privateKeyToPem(keypair.privateKey)
+							).toString("base64"),
+						};
+						localStorage.setItem("keypair", JSON.stringify(this.keypair));
+						this.privateKey = keypair.privateKey;
+					}
+				);
+			} else {
+				this.keypair = JSON.parse(keypair);
+				this.privateKey = Buffer.from(
+					this.keypair.privateKey,
+					"base64"
+				).toString();
+				this.privateKey = forge.pki.privateKeyFromPem(this.privateKey);
+			}
 
-      // restore session
-      await this.login();
+			// restore session
+			await this.login();
 
-      // join room
-      socket.emit("join_room", {
-        user: this.user,
-      });
+			// join room
+			socket.emit("join_room", {
+				user: this.user,
+			});
 
-      // retrieve users from localStorage
-      if (localStorage.getItem("users")) {
-        this.users = JSON.parse(localStorage.getItem("users"));
-      }
-      this.loading = false;
-    },
-  },
-  beforeMount() {
-    this.load();
-  },
-  mounted() {
-    // socket to recieve messages
-    socket.on("receive_message", (data) => {
-      const message = decryptMessage(data.message, this.privateKey);
+			// retrieve users from localStorage
+			if (localStorage.getItem("users")) {
+				this.users = JSON.parse(localStorage.getItem("users"));
+			}
+			this.loading = false;
+		},
+	},
+	beforeMount() {
+		this.load();
+	},
+	mounted() {
+		// socket to recieve messages
+		socket.on("receive_message", (data) => {
+			const message = decryptMessage(data.message, this.privateKey);
 
-      let temp = [];
-      if (localStorage.getItem(data.user)) {
-        temp = JSON.parse(localStorage.getItem(data.user));
-      }
+			let temp = [];
+			if (localStorage.getItem(data.user)) {
+				temp = JSON.parse(localStorage.getItem(data.user));
+			}
 
-      temp.push({ user: data.user, message: message });
-      if (this.to === data.user) {
-        this.messages = temp;
-      } else if (!this.users.includes(data.user)) {
-        // add to users if not present
-        this.connect(data.user);
-      }
+			temp.push({ user: data.user, message: message });
+			if (this.to === data.user) {
+				this.messages = temp;
+			} else if (!this.users.includes(data.user)) {
+				// add to users if not present
+				this.connect(data.user);
+			}
 
-      this.rearrange(data.user);
-      this.setMessages(data.user, JSON.stringify(temp));
-    });
+			this.rearrange(data.user);
+			this.setMessages(data.user, JSON.stringify(temp));
+		});
 
-    socket.on("room_announcements", (data) => {
-      console.log(data);
-    });
-  },
+		socket.on("room_announcements", (data) => {
+			console.log(data);
+		});
+	},
 };
 </script>
 
