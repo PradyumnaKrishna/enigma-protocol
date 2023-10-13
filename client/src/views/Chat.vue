@@ -6,29 +6,12 @@
         <div class="col-md-4 col-xl-3 chat">
           <div class="card mb-sm-3 mb-md-0 h-100 contacts_card">
             <div class="card-header text-light">
-              <p id="userId" class="inputBox">
-                User ID :
-                <strong @click="copy(user)" title="click to copy">{{
-                  user
-                }}</strong>
-              </p>
               <ToastMessage :toastmsg="toastmsg" :toastType="toastType" />
-              <form v-on:submit.prevent="onSubmit" class="form">
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control etrans"
-                    required
-                    v-model="room"
-                    placeholder="Other User's ID"
-                  />
-                  <div class="input-group-prepend">
-                    <button class="btn btn-dark" @click="join_room(room)">
-                      <strong>Add</strong>
-                    </button>
-                  </div>
-                </div>
-              </form>
+              <UserInfo 
+                :user="user" 
+                @requestCopy="copy" 
+                @joinRoom="join_room" 
+              />
             </div>
             <div class="card-body contacts_body">
               <ChatListHeader :users="users" :activeUser="to" @switch="switchTo" />
@@ -98,11 +81,12 @@
 </template>
 
 <script>
+import ToastMessage from "../components/ToastMessage.vue";
+import UserInfo from "../components/UserInfo.vue";
 import io from "socket.io-client";
 import ClipLoader from "../assets/ClipLoader";
 import { encryptMessage, decryptMessage } from "../utils/crypto";
 import { Buffer } from "buffer";
-import ToastMessage from "../components/ToastMessage.vue";
 import ChatListHeader from "../components/ChatListHeader.vue";
 
 URL = process.env.VUE_APP_APIURL;
@@ -114,9 +98,10 @@ const socket = io.connect(URL);
 export default {
   name: "Home",
   components: {
+    UserInfo,
     ClipLoader,
-    ToastMessage,
-    ChatListHeader
+    ChatListHeader,
+    ToastMessage
   },
   data() {
     return {
