@@ -9,8 +9,6 @@
               <ToastMessage :toastmsg="toastmsg" :toastType="toastType" />
               <UserInfo 
                 :user="user" 
-                :toastmsg="toastmsg" 
-                :toastType="toastType" 
                 @requestCopy="copy" 
                 @joinRoom="join_room" 
               />
