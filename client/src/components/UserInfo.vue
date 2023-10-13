@@ -33,8 +33,6 @@ export default {
   name: "UserInfo",
   props: {
     user: String,
-    toastmsg: String,
-    toastType: String,
   },
   data() {
     return {

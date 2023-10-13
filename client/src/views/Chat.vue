@@ -13,7 +13,6 @@
                 :toastType="toastType" 
                 @requestCopy="copy" 
                 @joinRoom="join_room" 
-                @showToast="showToastMethod" 
               />
             </div>
             <div class="card-body contacts_body">
@@ -155,10 +154,6 @@ export default {
         this.$cookies.set("user", this.user);
       }
     },
-    showToastMethod(message, type) {
-    this.toastmsg = message;
-    this.toastType = type;
-  },
 
     connect: async function (user) {
       // function to set publicKey of user and return status
