@@ -196,18 +196,40 @@ export default {
     },
 
     switchTo: async function (id) {
-      // switch to the user select
-      this.to = id;
-      await this.retrieve(id);
-      const publicKey = this.$cookies.get(this.to);
-      this[this.to] = Buffer.from(publicKey, "base64").toString();
-      this.publicKey = forge.pki.publicKeyFromPem(this[this.to]);
+    // Check the publicKey first
+    const publicKey = this.$cookies.get(id);
+    if (!publicKey || typeof publicKey !== 'string') {
+        console.error('Invalid publicKey for user:', id);
+        this.toastmsg = "Error: Invalid chat session.";
+        this.toastType = "error";
+        setTimeout(() => {
+            this.toastmsg = "";
+            this.toastType = "";
+        }, 2000);
+        return;
+    }
+    // Now, set the active chat ID
+    this.to = id;
+    await this.retrieve(id);
 
-      const container = this.$refs.messages;
-      container.scrollTop = container.scrollHeight;
-    },
+    this[id] = Buffer.from(publicKey, "base64").toString();
+    this.publicKey = forge.pki.publicKeyFromPem(this[id]);
+
+    const container = this.$refs.messages;
+    container.scrollTop = container.scrollHeight;
+},
+
 
     send: async function () {
+      if (!this.publicKey) {
+        this.toastmsg = "Error: Cannot send a message in this chat session.";
+        this.toastType = "error";
+        setTimeout(() => {
+            this.toastmsg = "";
+            this.toastType = "";
+        }, 2000);
+        return;
+    }
       const message = encryptMessage(this.message, this.publicKey);
 
       socket.emit("send_message", {
@@ -281,6 +303,12 @@ export default {
       // retrieve users from localStorage
       if (localStorage.getItem("users")) {
         this.users = JSON.parse(localStorage.getItem("users"));
+
+        // Cleanup or Repair: Cross-check each chat session with the cookies
+        this.users = this.users.filter(user => {
+            const publicKey = this.$cookies.get(user);
+            return publicKey && typeof publicKey === 'string';
+        });
       }
       this.loading = false;
     },
