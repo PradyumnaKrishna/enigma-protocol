@@ -52,7 +52,7 @@
               </div>
             </div>
             <div class="card-footer">
-              <form v-if="to" v-on:submit.prevent="onSubmit" class="form">
+              <form v-if="to && !isMessageFormDisabled" v-on:submit.prevent="onSubmit" class="form">
                 <div class="input-group">
                   <input
                     type="text"
@@ -72,6 +72,9 @@
                   </div>
                 </div>
               </form>
+              <p v-if="isMessageFormDisabled" style="color: #6c757d; font-weight: bold;">
+              {{ inactiveUserMessage }}
+              </p>
             </div>
           </div>
         </div>
@@ -105,6 +108,8 @@ export default {
   },
   data() {
     return {
+      isMessageFormDisabled: false,
+      inactiveUserMessage: '',
       loading: true,
       messages: [],
       message: "",
@@ -196,40 +201,31 @@ export default {
     },
 
     switchTo: async function (id) {
-    // Check the publicKey first
-    const publicKey = this.$cookies.get(id);
-    if (!publicKey || typeof publicKey !== 'string') {
-        console.error('Invalid publicKey for user:', id);
-        this.toastmsg = "Error: Invalid chat session.";
-        this.toastType = "error";
-        setTimeout(() => {
-            this.toastmsg = "";
-            this.toastType = "";
-        }, 2000);
-        return;
-    }
-    // Now, set the active chat ID
-    this.to = id;
-    await this.retrieve(id);
+      // switch to the user select
+      this.to = id;
+      await this.retrieve(id);
+      
+      let publicKey = this.$cookies.get(id);;
+      if (!publicKey || typeof publicKey !== 'string') {
+        await this.connect(id);
+        publicKey = this.$cookies.get(id);
+        if (!publicKey || typeof publicKey !== 'string') {
+          this.isMessageFormDisabled = true;
+          this.inactiveUserMessage = "User is inactive";
+          return
+        }
+      }
 
-    this[id] = Buffer.from(publicKey, "base64").toString();
-    this.publicKey = forge.pki.publicKeyFromPem(this[id]);
+      this.isMessageFormDisabled = false;
+      this.inactiveUserMessage = '';
+      this[id] = Buffer.from(publicKey, "base64").toString();
+      this.publicKey = forge.pki.publicKeyFromPem(this[id]);
 
-    const container = this.$refs.messages;
-    container.scrollTop = container.scrollHeight;
-},
-
+      const container = this.$refs.messages;
+      container.scrollTop = container.scrollHeight;
+    },
 
     send: async function () {
-      if (!this.publicKey) {
-        this.toastmsg = "Error: Cannot send a message in this chat session.";
-        this.toastType = "error";
-        setTimeout(() => {
-            this.toastmsg = "";
-            this.toastType = "";
-        }, 2000);
-        return;
-    }
       const message = encryptMessage(this.message, this.publicKey);
 
       socket.emit("send_message", {
@@ -303,12 +299,6 @@ export default {
       // retrieve users from localStorage
       if (localStorage.getItem("users")) {
         this.users = JSON.parse(localStorage.getItem("users"));
-
-        // Cleanup or Repair: Cross-check each chat session with the cookies
-        this.users = this.users.filter(user => {
-            const publicKey = this.$cookies.get(user);
-            return publicKey && typeof publicKey === 'string';
-        });
       }
       this.loading = false;
     },
@@ -317,7 +307,7 @@ export default {
     this.load();
   },
   mounted() {
-    // socket to recieve messages
+    // socket to receive messages
     socket.on("receive_message", (data) => {
       const message = decryptMessage(data.message, this.privateKey);
 
