@@ -52,7 +52,7 @@
               </div>
             </div>
             <div class="card-footer">
-              <form v-if="to" v-on:submit.prevent="onSubmit" class="form">
+              <form v-if="to && !isMessageFormDisabled" v-on:submit.prevent="onSubmit" class="form">
                 <div class="input-group">
                   <input
                     type="text"
@@ -72,6 +72,9 @@
                   </div>
                 </div>
               </form>
+              <p v-if="isMessageFormDisabled" style="color: #6c757d; font-weight: bold;">
+              {{ inactiveUserMessage }}
+              </p>
             </div>
           </div>
         </div>
@@ -105,6 +108,8 @@ export default {
   },
   data() {
     return {
+      isMessageFormDisabled: false,
+      inactiveUserMessage: '',
       loading: true,
       messages: [],
       message: "",
@@ -199,9 +204,22 @@ export default {
       // switch to the user select
       this.to = id;
       await this.retrieve(id);
-      const publicKey = this.$cookies.get(this.to);
-      this[this.to] = Buffer.from(publicKey, "base64").toString();
-      this.publicKey = forge.pki.publicKeyFromPem(this[this.to]);
+      
+      let publicKey = this.$cookies.get(id);;
+      if (!publicKey || typeof publicKey !== 'string') {
+        await this.connect(id);
+        publicKey = this.$cookies.get(id);
+        if (!publicKey || typeof publicKey !== 'string') {
+          this.isMessageFormDisabled = true;
+          this.inactiveUserMessage = "User is inactive";
+          return
+        }
+      }
+
+      this.isMessageFormDisabled = false;
+      this.inactiveUserMessage = '';
+      this[id] = Buffer.from(publicKey, "base64").toString();
+      this.publicKey = forge.pki.publicKeyFromPem(this[id]);
 
       const container = this.$refs.messages;
       container.scrollTop = container.scrollHeight;
@@ -289,7 +307,7 @@ export default {
     this.load();
   },
   mounted() {
-    // socket to recieve messages
+    // socket to receive messages
     socket.on("receive_message", (data) => {
       const message = decryptMessage(data.message, this.privateKey);
 
