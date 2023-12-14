@@ -15,11 +15,11 @@ export default {
 			type: Boolean,
 			default: true
 		},
-  	color: { 
+		color: {
 			type: String,
 			default: "#5dc596"
 		},
-  	size: {
+		size: {
 			type: String,
 			default: "50px"
 		},
@@ -61,7 +61,7 @@ export default {
     -webkit-animation: v-clipDelay 0.75s 0s infinite linear;
             animation: v-clipDelay 0.75s 0s infinite linear;
     -webkit-animation-fill-mode: both;
-	          animation-fill-mode: both;
+            animation-fill-mode: both;
 
     display: inline-block;
 }

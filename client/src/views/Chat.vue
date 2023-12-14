@@ -35,7 +35,7 @@
                   <strong>Protocol Initiated</strong>
                 </p>
               </div>
-              <div v-else v-for="item in messages">
+              <div v-else v-for="item in messages" :key="item">
                 <div
                   v-if="item.user === 'self'"
                   class="d-flex justify-content-end mb-4"
@@ -92,7 +92,7 @@ import { encryptMessage, decryptMessage } from "../utils/crypto";
 import { Buffer } from "buffer";
 import ChatListHeader from "../components/ChatListHeader.vue";
 
-URL = process.env.VUE_APP_APIURL;
+const URL = process.env.VUE_APP_APIURL;
 
 const forge = require("node-forge");
 const fetch = require("node-fetch");

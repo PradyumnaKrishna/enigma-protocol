@@ -22,9 +22,11 @@ jobs:
         with:
           node-version: 18
 
-      # ESLint must be in `package.json`
+      # ESLint and Prettier must be in `package.json`
       - name: Install Node.js dependencies
+        working-directory: ./client
         run: npm ci
 
       - name: Run linters
+        working-directory: ./client
         run : npm run lint-fix
