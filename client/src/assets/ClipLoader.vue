@@ -8,40 +8,40 @@
 <script>
 export default {
   
-  name: 'ClipLoader',
+	name: "ClipLoader",
 
-  props: {
-    loading: {
-      type: Boolean,
-      default: true
-    },
-  	color: { 
-      type: String,
-      default: '#5dc596'
-    },
-  	size: {
-      type: String,
-      default: '50px'
-    },
-    radius: {
-      type: String,
-      default: '100%'
-    }
-  },
-  computed: {
-    spinnerStyle () {
-      return {
-        height: this.size,
-        width: this.size,
-        borderWidth: '5px',
-        borderStyle: 'solid',
-        borderColor: this.color + ' ' + this.color + ' transparent',
-        borderRadius: this.radius,
-        background: 'transparent'
-      }
-    }
-  }
-}
+	props: {
+		loading: {
+			type: Boolean,
+			default: true
+		},
+		color: {
+			type: String,
+			default: "#5dc596"
+		},
+		size: {
+			type: String,
+			default: "50px"
+		},
+		radius: {
+			type: String,
+			default: "100%"
+		}
+	},
+	computed: {
+		spinnerStyle () {
+			return {
+				height: this.size,
+				width: this.size,
+				borderWidth: "5px",
+				borderStyle: "solid",
+				borderColor: this.color + " " + this.color + " transparent",
+				borderRadius: this.radius,
+				background: "transparent"
+			};
+		}
+	}
+};
 </script>
 
 <style>
@@ -61,7 +61,7 @@ export default {
     -webkit-animation: v-clipDelay 0.75s 0s infinite linear;
             animation: v-clipDelay 0.75s 0s infinite linear;
     -webkit-animation-fill-mode: both;
-	          animation-fill-mode: both;
+            animation-fill-mode: both;
 
     display: inline-block;
 }

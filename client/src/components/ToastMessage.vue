@@ -12,16 +12,16 @@
 
 <script>
 export default {
-  props: {
-    toastmsg: {
-      type: String,
-      required: true,
-    },
-    toastType: {
-      type: String,
-      required: true,
-    },
-  },
+	props: {
+		toastmsg: {
+			type: String,
+			required: true,
+		},
+		toastType: {
+			type: String,
+			required: true,
+		},
+	},
 };
 </script>
 

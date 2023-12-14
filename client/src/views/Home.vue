@@ -15,18 +15,18 @@
 <script>
 
 export default {
-  name: "Home",
-  props: {
-    msg: String,
-  },
-  data() {
-    return {
-      messages: [],
-      message: ""
-    };
-  },
-  mounted() {
-  }
+	name: "Home",
+	props: {
+		msg: String,
+	},
+	data() {
+		return {
+			messages: [],
+			message: ""
+		};
+	},
+	mounted() {
+	}
 };
 </script>
 

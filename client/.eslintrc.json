@@ -1,6 +1,6 @@
 {
     "env": {
-        "browser": true,
+        "node":true,
         "commonjs": true,
         "es2021": true
     },
@@ -30,6 +30,7 @@
         "semi": [
             "error",
             "always"
-        ]
+        ],
+        "vue/multi-word-component-names": "off"
     }
 }
