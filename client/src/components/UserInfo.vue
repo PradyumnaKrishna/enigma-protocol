@@ -30,29 +30,29 @@
 
 <script>
 export default {
-  name: "UserInfo",
-  props: {
-    user: String,
-  },
-  data() {
-    return {
-      room: "",
-    };
-  },
-  methods: {
-    copy(userId) {
-      // Emit the event to parent component to handle the copy action
-      this.$emit("requestCopy", userId);
-    },
-    joinRoom() {
-      // Emit the joinRoom event with the room ID
-      this.$emit("joinRoom", this.room);
-    },
-    onSubmit() {
-      // If the form is submitted, trigger the join room logic
-      this.joinRoom();
-    },
-  },
+	name: "UserInfo",
+	props: {
+		user: String,
+	},
+	data() {
+		return {
+			room: "",
+		};
+	},
+	methods: {
+		copy(userId) {
+			// Emit the event to parent component to handle the copy action
+			this.$emit("requestCopy", userId);
+		},
+		joinRoom() {
+			// Emit the joinRoom event with the room ID
+			this.$emit("joinRoom", this.room);
+		},
+		onSubmit() {
+			// If the form is submitted, trigger the join room logic
+			this.joinRoom();
+		},
+	},
 };
 </script>
 

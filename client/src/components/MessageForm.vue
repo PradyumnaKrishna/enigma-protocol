@@ -13,29 +13,29 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'MessageForm',
-  data() {
-    return {
-      text: '',
-      isFocused: false
-    }
-  },
+	name: "MessageForm",
+	data() {
+		return {
+			text: "",
+			isFocused: false
+		};
+	},
 
-  methods: {
-    onSubmit() {
-      const text = this.text.trim();
-      if (text.trim() === '') {
-        return;
-      }
+	methods: {
+		onSubmit() {
+			const text = this.text.trim();
+			if (text.trim() === "") {
+				return;
+			}
 
-      this.$emit('sendMessage', text);
-      this.text = '';
-    },
-  },
-})
+			this.$emit("sendMessage", text);
+			this.text = "";
+		},
+	},
+});
 
 </script>
 

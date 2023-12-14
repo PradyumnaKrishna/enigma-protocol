@@ -13,31 +13,31 @@
     </div>
   </template>
   
-  <script>
-  import ChatCard from './ChatCard.vue';
+<script>
+import ChatCard from "./ChatCard.vue";
   
-  export default {
-    name: "ChatListHeader",
-    components: {
-      ChatCard
-    },
-    props: {
-      users: {
-        type: Array,
-        required: true
-      },
-      activeUser: {
-        type: String,
-        default: null
-      }
-    },
-    methods: {
-      switchChat(userId) {
-        this.$emit('switch', userId);
-      }
-    }
-  };
-  </script>
+export default {
+	name: "ChatListHeader",
+	components: {
+		ChatCard
+	},
+	props: {
+		users: {
+			type: Array,
+			required: true
+		},
+		activeUser: {
+			type: String,
+			default: null
+		}
+	},
+	methods: {
+		switchChat(userId) {
+			this.$emit("switch", userId);
+		}
+	}
+};
+</script>
   
   <style scoped>
 .chat-list-header {

@@ -8,40 +8,40 @@
 <script>
 export default {
   
-  name: 'ClipLoader',
+	name: "ClipLoader",
 
-  props: {
-    loading: {
-      type: Boolean,
-      default: true
-    },
+	props: {
+		loading: {
+			type: Boolean,
+			default: true
+		},
   	color: { 
-      type: String,
-      default: '#5dc596'
-    },
+			type: String,
+			default: "#5dc596"
+		},
   	size: {
-      type: String,
-      default: '50px'
-    },
-    radius: {
-      type: String,
-      default: '100%'
-    }
-  },
-  computed: {
-    spinnerStyle () {
-      return {
-        height: this.size,
-        width: this.size,
-        borderWidth: '5px',
-        borderStyle: 'solid',
-        borderColor: this.color + ' ' + this.color + ' transparent',
-        borderRadius: this.radius,
-        background: 'transparent'
-      }
-    }
-  }
-}
+			type: String,
+			default: "50px"
+		},
+		radius: {
+			type: String,
+			default: "100%"
+		}
+	},
+	computed: {
+		spinnerStyle () {
+			return {
+				height: this.size,
+				width: this.size,
+				borderWidth: "5px",
+				borderStyle: "solid",
+				borderColor: this.color + " " + this.color + " transparent",
+				borderRadius: this.radius,
+				background: "transparent"
+			};
+		}
+	}
+};
 </script>
 
 <style>
