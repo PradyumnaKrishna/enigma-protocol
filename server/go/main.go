@@ -157,6 +157,9 @@ func Init() {
 		}
 	}()
 
+	http.Handle("/socket.io/", server)
+	http.Handle("/", myRouter)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
