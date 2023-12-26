@@ -54,7 +54,12 @@ type Message struct {
 
 func JSONResponse(w http.ResponseWriter, code int, output interface{}) {
 	// Convert our interface to JSON
-	response, _ := json.Marshal(output)
+	response, err := json.Marshal(output)
+	if err != nil {
+		log.Printf("Error marshalling JSON response: %v\n", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 	// Set the content type to json for browsers
 	w.Header().Set("Content-Type", "application/json")
 	// Our response code
@@ -81,7 +86,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		User: id,
 	}
 
-	JSONResponse(w, 200, response)
+	JSONResponse(w, http.StatusOK , response)
 }
 
 
@@ -102,7 +107,7 @@ func connect(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	JSONResponse(w, 200, response)
+	JSONResponse(w, http.StatusOK , response)
 }
 
 
@@ -146,14 +151,21 @@ func Init() {
 			log.Fatalf("socketio listen error: %s\n", err)
 		}
 	}()
-	defer server.Close()
+	defer func() {
+		if err := server.Close(); err != nil {
+			log.Printf("Error closing server: %s\n", err)
+		}
+	}()
 
 	http.Handle("/socket.io/", server)
 	http.Handle("/", myRouter)
 
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
-	log.Println("Serving at localhost:"+port)
+	log.Println("Serving at localhost:" + port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
