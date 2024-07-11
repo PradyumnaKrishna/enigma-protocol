@@ -17,7 +17,7 @@ Standard asymmetric encryption algorithms like RSA are slow and unsuitable for e
 
 Encryption involves two different algorithms: symmetric and asymmetric encryption. Symmetric encryption is used to encrypt the message, and asymmetric encryption is used to encrypt the symmetric key, resulting in a fully encrypted message.
 
-![Encryption](images/encryption.png)
+![Encryption](/images/encryption.png)
 
 Steps to encrypt a message:
 
@@ -29,7 +29,7 @@ Steps to encrypt a message:
 
 Decryption follows similar steps as encryption, but in reverse order. Asymmetric decryption is used to decrypt the symmetric key, and symmetric decryption is used to decrypt the message.
 
-![Decryption](images/decryption.png)
+![Decryption](/images/decryption.png)
 
 Steps to decrypt a message:
 
