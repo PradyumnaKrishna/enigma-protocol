@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - client/**
 
   workflow_dispatch:
 
@@ -15,14 +13,11 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
   build:
-    defaults:
-      run:
-        working-directory: client
     runs-on: ubuntu-latest
     env:
       VUE_APP_APIURL: ${{ secrets.VUE_APP_APIURL }}
@@ -42,7 +37,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./client/dist
+          path: ./dist
 
   deploy:
     environment:
