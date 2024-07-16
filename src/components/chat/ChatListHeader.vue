@@ -8,19 +8,6 @@
         :isActive="activeUser === user"
         @switch="switchChat(user)"
       />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
-      <ChatCard :userId="'test'" />
     </div>
   </div>
 </template>

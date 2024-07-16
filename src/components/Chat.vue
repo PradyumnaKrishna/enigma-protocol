@@ -1,43 +1,46 @@
 <template>
   <ToastMessage :toastmsg="toastmsg" :toastType="toastType" />
   <div class="flex justify-center h-screen items-center">
-    <div class="flex flex-wrap justify-center w-full">
-      <div class="md:w-1/3 pr-4 pl-4 xl:w-1/4 chat">
+    <div class="inline-flex justify-center w-full gap-2">
+      <div class="md:w-1/3 xl:w-1/4 chat border border-gray-700 rounded-lg">
         <div class="h-[85vh] flex flex-col">
           <UserInfo :user="user" @requestCopy="copy" @joinRoom="join_room" />
           <ChatListHeader :users="users" :activeUser="to" @switch="switchTo" />
         </div>
       </div>
-      <div class="md:w-2/3 pr-4 pl-4 xl:w-1/2 chat h-full">
-        <div class="card">
-          <div class="card-header">
-            <div class="flex">
-              <p class="text-b ml-3 mt-3">
-                <strong>{{ to }}</strong>
-              </p>
-            </div>
+      <div class="md:w-2/3 xl:w-1/2 chat h-full border border-gray-700 rounded-lg">
+        <div class="h-[85vh] flex flex-col">
+          <div>
+            <p class="text-b ml-3 mt-3">
+              <strong>{{ to }}</strong>
+            </p>
           </div>
-          <div ref="messages" class="card-body msg_card_body">
-            <div v-if="!to">
+          <div ref="messages" class="h-full text-left overflow-hidden overflow-y-auto">
+            <div v-if="!to" class="text-center">
               <img class="mx-auto" src="../assets/logo.png" />
               <p style="color: #42b983">
                 <strong>Protocol Initiated</strong>
               </p>
             </div>
             <div v-else v-for="item in messages" :key="item">
-              <div v-if="item.user === 'self'" class="flex justify-end mb-4">
-                <div class="msg_container color-b text-b">
-                  {{ item.message }}
-                </div>
-              </div>
-              <div v-else class="flex justify-start mb-4">
-                <div class="msg_container color-a text-a">
+              <div
+                class="flex mb-4 mx-2"
+                :class="[item.user === 'self' ? 'justify-end' : 'justify-start']"
+              >
+                <div
+                  class="py-2 px-3 rounded-2xl"
+                  :class="[
+                    item.user === 'self'
+                      ? 'bg-[#1f4287] text-[#f9f6f7] ml-10'
+                      : 'bg-[#ffd700] text-[#212529] mr-10',
+                  ]"
+                >
                   {{ item.message }}
                 </div>
               </div>
             </div>
           </div>
-          <div class="card-footer">
+          <div>
             <MessageForm v-if="to && !isMessageFormDisabled" @sendMessage="send" />
             <p v-if="isMessageFormDisabled" style="color: #6c757d; font-weight: bold">
               {{ inactiveUserMessage }}
@@ -53,7 +56,6 @@
 import ToastMessage from './ui/ToastMessage.vue'
 import UserInfo from './chat/UserInfo.vue'
 import MessageForm from './chat/MessageForm.vue'
-// import ClipLoader from '../assets/ClipLoader'
 import ChatListHeader from './chat/ChatListHeader.vue'
 
 import Crypto from '../utils/crypto'
@@ -292,143 +294,9 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 * {
   font-family: 'Roboto', 'Helvetica', sans-serif;
-}
-
-.inputBox:hover {
-  cursor: pointer;
-}
-
-h3 {
-  margin: 40px 0 0;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: list-item;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
-
-button {
-  border-radius: 0 15px 15px 0 !important;
-  border: 0 !important;
-}
-
-input {
-  border-radius: 15px 0 0 15px !important;
-  border: 0 !important;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #f9f6f7;
-}
-
-input:focus {
-  box-shadow: none !important;
-  background-color: rgba(255, 255, 255, 0.05);
-  color: #f9f6f7;
-  outline: 0;
-}
-
-input::placeholder {
-  color: gray;
-}
-
-.inputBox {
-  margin-top: 0.4rem;
-  border-radius: 10px;
-  background-color: #23262a;
-  padding: 0.1rem 0;
-  opacity: 0.7;
-}
-.btn.focus,
-.btn:focus {
-  outline: 0;
-  box-shadow: none !important;
-}
-
-.chat {
-  border: 1px solid rgb(75, 70, 71) !important;
-  padding: 0 !important;
-  border-radius: 10px;
-}
-
-.card {
-  border-radius: 10px !important;
-  border: 1px double rgba(255, 255, 255, 0.1) !important;
-  background-color: #0d1117;
-  height: 85vh;
-}
-
-.card-header {
-  border-radius: 10px 10px 0 0 !important;
-  border: 0 !important;
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-.card-footer {
-  border-radius: 0 0 10px 10px !important;
-  border: 0 !important;
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-.msg_card_body {
-  overflow-y: auto;
-  height: 75vh;
-}
-
-.contact_body {
-  border-radius: 15px !important;
-  border: 1px double rgba(0, 0, 0, 0.3) !important;
-  background-color: rgba(55, 55, 55, 0.1);
-  text-align: center;
-  padding: 1rem;
-  width: 100%;
-  color: #f9f6f7;
-}
-
-.text-a {
-  color: #212529;
-}
-
-.text-b {
-  color: #f9f6f7;
-}
-
-.color-a {
-  background-color: #ffd700;
-}
-
-.color-b {
-  background-color: #1f4287;
-}
-
-.msg_container {
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: 10px;
-  border-radius: 25px;
-  padding: 10px;
-  position: relative;
-  max-width: 75%;
-  text-align: left;
-}
-
-.etrans {
-  -webkit-transition: all 0.2s ease-out;
-  -moz-transition: all 0.2s ease-out;
-  -ms-transition: all 0.2s ease-out;
-  -o-transition: all 0.2s ease-out;
-  transition: all 0.2s ease-out;
 }
 </style>

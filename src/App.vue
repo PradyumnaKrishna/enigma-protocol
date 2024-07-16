@@ -5,7 +5,7 @@ import ClipLoader from './components/ui/ClipLoader.vue'
 import Crypto from './utils/crypto'
 import Storage from './utils/storage'
 
-const URL = 'http://localhost:8000'
+const URL = import.meta.env.VITE_API_URL
 
 export default {
   name: 'App',

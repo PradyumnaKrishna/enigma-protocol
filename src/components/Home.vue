@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto w-1/2">
-    <h1>Enigma Protocol</h1>
+    <h1 class="text-4xl font-medium">Enigma Protocol</h1>
     <br />
     <p>
       This Website is used for anonymous chatting with end-to-end encryption support. I can't

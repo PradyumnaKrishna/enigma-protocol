@@ -1,7 +1,7 @@
 <template>
   <button
-    class="rounded-xl bg-neutral-900 hover:pointer border border-gray-600 text-center p-4 w-full color-gray-400 transition duration-300"
-    :class="{ 'border-blue-500': isActive }"
+    class="rounded-xl bg-neutral-900 hover:pointer border text-center p-4 w-full color-gray-400 transition duration-300"
+    :class="[isActive ? 'border-blue-500' : 'border-gray-600']"
     @click="$emit('switch')"
   >
     {{ userId }}
