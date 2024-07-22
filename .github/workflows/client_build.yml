@@ -20,7 +20,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      VUE_APP_APIURL: ${{ secrets.VUE_APP_APIURL }}
+      VITE_API_URL: ${{ secrets.VITE_API_URL }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
