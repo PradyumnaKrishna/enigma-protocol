@@ -1,7 +1,7 @@
 # Enigma Protocol Specification
 
 **Date**: July 8, 2024  
-**Version**: 0.3.0 (Draft)
+**Version**: 0.3.0
 
 ## Overview
 
@@ -28,7 +28,7 @@ The server must provide the following REST APIs:
 `GET /login/{publicKey}`
 
 - **Description**: Stores the user's public key and assigns a userId.
-- **Request**: 
+- **Request**:
   - `publicKey`: The public key of the user.
 - **Response**: A JSON object containing:
   - `userId`: The unique identifier of the user.
@@ -40,7 +40,7 @@ The server must provide the following REST APIs:
 `GET /connect/{userId}`
 
 - **Description**: Retrieves the public key of the specified user.
-- **Request**: 
+- **Request**:
   - `userId`: The unique identifier of the requested user.
 - **Response**: A JSON object containing:
   - `userId`: The unique identifier of the requested user.
@@ -56,7 +56,7 @@ The server must provide a WebSocket endpoint for users to connect and transmit m
 `WebSocket /connect/{userId}`
 
 - **Description**: Connect to the server to receive messages.
-- **Request**: 
+- **Request**:
   - `userId`: The unique identifier of the user.
 - **Response**: If the user does not exist, the connection is closed with a JSON response containing:
   - `error`: Error message.
@@ -90,7 +90,6 @@ The key exchange process involves the following steps:
 - Alice and Bob generate their public and private keys.
 - Alice and Bob log their public keys on the server using the `/login` endpoint and obtain their respective userIds.
 - Alice requests Bob's public key using the `/connect` endpoint.
-
 
 ### Message Transmission
 

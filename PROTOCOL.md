@@ -1,7 +1,7 @@
 # Enigma Protocol
 
 **Date**: July 8, 2024  
-**Version**: 0.3.0 (Draft)
+**Version**: 0.3.0
 
 This document describes the protocol/algorithm for encrypting and decrypting messages, independent of how the keys are generated and the messages are transmitted. For message transmission, see the [Specification](SPECIFICATION.md).
 
