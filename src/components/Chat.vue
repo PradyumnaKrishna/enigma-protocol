@@ -238,7 +238,7 @@ export default {
     this.validateUser()
     this.privateKey = Crypto.privateKeyFromBase64(this.$props.keypair.privateKey)
 
-    const socket = new WebSocket(`${this.wsURL}/connect/${this.$props.user}`)
+    const socket = new WebSocket(`${this.wsURL}/ws/${this.$props.user}`)
 
     // retrieve users from localStorage
     if (localStorage.getItem('users')) {

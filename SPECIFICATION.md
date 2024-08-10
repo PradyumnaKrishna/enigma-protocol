@@ -1,7 +1,7 @@
 # Enigma Protocol Specification
 
 **Date**: July 8, 2024  
-**Version**: 0.3.0
+**Version**: 0.3.1
 
 ## Overview
 
@@ -53,7 +53,7 @@ The server must provide the following REST APIs:
 
 The server must provide a WebSocket endpoint for users to connect and transmit messages.
 
-`WebSocket /connect/{userId}`
+`WebSocket /ws/{userId}`
 
 - **Description**: Connect to the server to receive messages.
 - **Request**:
@@ -93,7 +93,7 @@ The key exchange process involves the following steps:
 
 ### Message Transmission
 
-1. Alice connects to the server using the `/connect` WebSocket endpoint.
+1. Alice connects to the server using the `/ws` WebSocket endpoint.
 2. Alice sends a message to Bob using the following JSON object:
    ```json
    {
